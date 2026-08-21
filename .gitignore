@@ -1,0 +1,16 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+*.out
+*.pdb
+*.ilk
+*.exp
+*.lib
+
+# IDE / 系统
+.vscode/
+.idea/
+*.user
+Thumbs.db
+Desktop.ini
