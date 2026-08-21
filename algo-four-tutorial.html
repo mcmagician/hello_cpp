@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSP-J · 二分 / 贪心 / 动态规划 / 搜索</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --card: #fffdf9;
+      --ink: #1c2430;
+      --muted: #5c6b7a;
+      --line: #d9d0c3;
+      --accent: #1f6f5b;
+      --accent-soft: #e5f2ed;
+      --warn: #9a4d1c;
+      --warn-soft: #f8ebe1;
+      --code-bg: #1e2430;
+      --code-fg: #e8eef5;
+      --bin: #3d6f99;
+      --greed: #1f6f5b;
+      --dp: #8b5a2b;
+      --search: #6b4c9a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 70% 40% at 10% 0%, #e8efe8 0%, transparent 55%),
+        radial-gradient(ellipse 50% 35% at 100% 10%, #f0e8dc 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      gap: 0;
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.4rem 1rem;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 249, 0.92);
+      backdrop-filter: blur(6px);
+    }
+
+    nav .brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.35rem;
+      color: var(--accent);
+    }
+
+    nav .sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    nav a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      padding: 0.35rem 0.45rem;
+      border-radius: 6px;
+      margin-bottom: 0.15rem;
+    }
+
+    nav a:hover { background: var(--accent-soft); color: var(--accent); }
+
+    main { padding: 1.75rem 2rem 3rem; }
+
+    h1 {
+      font-size: 1.7rem;
+      margin: 0 0 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      color: var(--muted);
+      margin: 0 0 1.5rem;
+      max-width: 44em;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem 1.4rem;
+      margin-bottom: 1.1rem;
+      scroll-margin-top: 1rem;
+    }
+
+    h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+
+    h3 {
+      margin: 1.1rem 0 0.45rem;
+      font-size: 1rem;
+    }
+
+    p { margin: 0.55rem 0; }
+
+    ul, ol { margin: 0.4rem 0 0.6rem; padding-left: 1.3rem; }
+    li { margin: 0.25rem 0; }
+
+    code, .mono {
+      font-family: ui-monospace, Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    p code, li code, td code {
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 0.05em 0.35em;
+      border-radius: 4px;
+    }
+
+    pre {
+      margin: 0.7rem 0;
+      padding: 0.9rem 1rem;
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    pre .c { color: #8b9bb0; }
+    pre .k { color: #7ec8a3; }
+    pre .t { color: #9ecbff; }
+    pre .s { color: #e8b86d; }
+    pre .n { color: #d4a5ff; }
+
+    .tip, .exam, .pitfall {
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      margin: 0.8rem 0;
+      font-size: 0.92rem;
+    }
+
+    .tip { background: var(--accent-soft); border-left: 4px solid var(--accent); }
+    .exam { background: #eef3f8; border-left: 4px solid #3d6f99; }
+    .pitfall { background: var(--warn-soft); border-left: 4px solid var(--warn); }
+
+    .tip strong, .exam strong, .pitfall strong { display: block; margin-bottom: 0.2rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 0.6rem 0;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.45rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { background: #f0ebe3; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.12em 0.5em;
+      border-radius: 4px;
+      color: #fff;
+      margin-right: 0.25rem;
+    }
+    .tag.bin { background: var(--bin); }
+    .tag.greed { background: var(--greed); }
+    .tag.dp { background: var(--dp); }
+    .tag.search { background: var(--search); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+      margin: 0.8rem 0;
+    }
+
+    .card-mini {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      background: #faf8f4;
+    }
+
+    .card-mini h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    .card-mini p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .quiz {
+      background: #faf8f4;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin-top: 0.8rem;
+    }
+
+    .quiz button {
+      margin: 0.35rem 0.35rem 0 0;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+
+    .quiz button:hover { border-color: var(--accent); color: var(--accent); }
+
+    .quiz .feedback {
+      margin-top: 0.55rem;
+      font-size: 0.9rem;
+      min-height: 1.3em;
+      color: var(--muted);
+    }
+
+    .quiz .feedback.ok { color: var(--accent); }
+    .quiz .feedback.bad { color: var(--warn); }
+
+    .demo-panel {
+      background: #faf8f4;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.9rem;
+      margin-top: 0.6rem;
+    }
+
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .demo-controls button {
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .demo-controls button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .demo-controls button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .demo-controls label {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .demo-controls input[type="number"] {
+      width: 4.5rem;
+      padding: 0.35rem 0.45rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .bars {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      min-height: 3.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .bar {
+      min-width: 2.4rem;
+      padding: 0.45rem 0.35rem;
+      text-align: center;
+      border-radius: 6px;
+      background: #e8e4dc;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.85rem;
+      border: 2px solid transparent;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .bar.mid { background: #cde8df; border-color: var(--accent); }
+    .bar.lo, .bar.hi { background: #eef3f8; border-color: #3d6f99; }
+    .bar.found { background: #d4edda; border-color: #2e7d4f; }
+    .bar.drop { opacity: 0.35; }
+
+    .demo-log {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.82rem;
+      color: var(--muted);
+      white-space: pre-wrap;
+      min-height: 1.4em;
+    }
+
+    .grid-demo {
+      display: inline-grid;
+      grid-template-columns: repeat(5, 2rem);
+      gap: 3px;
+      margin: 0.4rem 0 0.6rem;
+    }
+
+    .cell {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 4px;
+      background: #e8e4dc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+
+    .cell.wall { background: #c5bdb0; }
+    .cell.start { background: #cde8df; }
+    .cell.vis { background: #b8d4f0; }
+    .cell.cur { background: #f0a04b; color: #fff; }
+    .cell.path { background: #7ec8a3; color: #fff; }
+
+    .dp-table {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+      margin: 0.5rem 0;
+    }
+
+    .dp-cell {
+      min-width: 2.6rem;
+      padding: 0.4rem 0.3rem;
+      text-align: center;
+      border-radius: 6px;
+      background: #e8e4dc;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.8rem;
+      border: 2px solid transparent;
+    }
+
+    .dp-cell.fill { background: #cde8df; border-color: var(--accent); }
+    .dp-cell.use { background: #f8ebe1; border-color: var(--warn); }
+
+    footer {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 0.5rem 0 1rem;
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      nav {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      nav a { display: inline-block; }
+      main { padding: 1.2rem; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand">四大算法思想</div>
+      <div class="sub">CSP-J 应试速成</div>
+      <a href="#overview">1. 总览对比</a>
+      <a href="#binary">2. 二分</a>
+      <a href="#greedy">3. 贪心</a>
+      <a href="#dp">4. 动态规划</a>
+      <a href="#search">5. 搜索</a>
+      <a href="#diff">6. 怎么选题型</a>
+      <a href="#demo">7. 互动演示</a>
+      <a href="#cheat">8. 考试小抄</a>
+      <a href="#quiz">9. 自测题</a>
+    </nav>
+
+    <main>
+      <h1>CSP-J · 二分 / 贪心 / DP / 搜索</h1>
+      <p class="lead">
+        这四种不是「四种具体代码模板」，而是四种<strong>想问题的方式</strong>。
+        初赛爱考概念与对比；机考要能认题、选对方法、写出基础实现。
+        本页按 CSP-J 难度讲解，并配有简单演示。
+      </p>
+
+      <section id="overview">
+        <h2>1. 一句话总览</h2>
+        <div class="cards">
+          <div class="card-mini">
+            <h3><span class="tag bin">二分</span> Binary Search</h3>
+            <p>有序 / 单调 → 每次砍掉一半答案区间，快速定位。</p>
+          </div>
+          <div class="card-mini">
+            <h3><span class="tag greed">贪心</span> Greedy</h3>
+            <p>每一步选「眼前最优」，拼出整体最优（要证明或凭经典模型）。</p>
+          </div>
+          <div class="card-mini">
+            <h3><span class="tag dp">动规</span> DP</h3>
+            <p>大问题拆成小问题，记结果、避免重复算，用转移方程递推。</p>
+          </div>
+          <div class="card-mini">
+            <h3><span class="tag search">搜索</span> Search</h3>
+            <p>在状态空间里系统枚举：DFS 深挖、BFS 一层层扩，找可行解/最短路。</p>
+          </div>
+        </div>
+
+        <table>
+          <tr>
+            <th>思想</th>
+            <th>核心直觉</th>
+            <th>CSP-J 常见题</th>
+            <th>典型复杂度感觉</th>
+          </tr>
+          <tr>
+            <td>二分</td>
+            <td>砍一半</td>
+            <td>有序查找、二分答案（最小最大值）</td>
+            <td>很快，约 <code>log n</code></td>
+          </tr>
+          <tr>
+            <td>贪心</td>
+            <td>每步最优</td>
+            <td>排序后取、活动安排、简单凑数</td>
+            <td>常是 <code>n</code> 或 <code>n log n</code></td>
+          </tr>
+          <tr>
+            <td>动规</td>
+            <td>记表递推</td>
+            <td>背包、爬楼梯、路径计数、最长上升</td>
+            <td>常是 <code>n</code>、<code>n²</code>、背包 <code>nW</code></td>
+          </tr>
+          <tr>
+            <td>搜索</td>
+            <td>枚举状态</td>
+            <td>迷宫、连通块、排列组合、回溯</td>
+            <td>可能指数级，要剪枝 / 换 BFS</td>
+          </tr>
+        </table>
+
+        <div class="tip">
+          <strong>应试直觉</strong>
+          看到「有序」「单调」「最小的最大」→ 先想二分；
+          「按某种规则排序再取」→ 贪心；
+          「最优解 / 方案数，且有重叠子问题」→ DP；
+          「走格子 / 枚举所有可能」→ 搜索。
+        </div>
+      </section>
+
+      <section id="binary">
+        <h2>2. 二分算法是什么？</h2>
+        <p>
+          <strong>二分</strong>：在<strong>单调</strong>的序列或答案区间上，反复取中点判断，丢掉不可能的一半。
+          前提几乎总是：存在「左边不满足 / 右边满足」这类分界。
+        </p>
+
+        <h3>经典：有序数组找数</h3>
+<pre><span class="c">// 在有序 a[1..n] 中找 x，找不到返回 -1</span>
+<span class="t">int</span> <span class="t">binary_search</span>(<span class="t">int</span> a[], <span class="t">int</span> n, <span class="t">int</span> x) {
+    <span class="t">int</span> L = <span class="n">1</span>, R = n;
+    <span class="k">while</span> (L &lt;= R) {
+        <span class="t">int</span> mid = (L + R) / <span class="n">2</span>;
+        <span class="k">if</span> (a[mid] == x) <span class="k">return</span> mid;
+        <span class="k">if</span> (a[mid] &lt; x) L = mid + <span class="n">1</span>;
+        <span class="k">else</span> R = mid - <span class="n">1</span>;
+    }
+    <span class="k">return</span> -<span class="n">1</span>;
+}</pre>
+
+        <h3>进阶考法：二分答案</h3>
+        <p>
+          不一定在数组里找元素。若「答案越大越容易满足 / 越难满足」呈单调，
+          可以对答案本身二分，再写一个 <code>check(mid)</code> 判断是否可行。
+        </p>
+        <div class="exam">
+          <strong>例：木头切割</strong>
+          要切出至少 K 段长度为 <code>x</code> 的木头 → 对 <code>x</code> 二分，
+          <code>check(x)</code> = 能否切出 ≥ K 段。求最大的可行 <code>x</code>。
+        </div>
+
+        <div class="pitfall">
+          <strong>易错</strong>
+          数组<strong>无序不能直接二分</strong>；边界写成死循环（<code>L/R</code> 更新错）；
+          <code>mid = (L+R)/2</code> 在极大范围时可能溢出（CSP-J 少见，知道即可）。
+        </div>
+      </section>
+
+      <section id="greedy">
+        <h2>3. 贪心是什么？</h2>
+        <p>
+          <strong>贪心</strong>：每一步都选当前看起来最好的选择，且假设这样能得到全局最优。
+          它<strong>不回溯</strong>、通常也不记很多状态，代码往往很短——但<strong>不是每题都能贪</strong>。
+        </p>
+
+        <h3>经典：活动选择（结束早的优先）</h3>
+        <p>若干活动有开始、结束时间，选最多互不冲突的活动 → 按<strong>结束时间升序</strong>，能选就选。</p>
+<pre><span class="c">// 假设已按结束时间排序：ed[i]</span>
+<span class="t">int</span> ans = <span class="n">0</span>, last = -<span class="n">1</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++) {
+    <span class="k">if</span> (st[i] &gt;= last) {   <span class="c">// 不冲突</span>
+        ans++;
+        last = ed[i];
+    }
+}</pre>
+
+        <h3>CSP-J 常见贪心信号</h3>
+        <ul>
+          <li>排序后从头扫一遍就能出答案</li>
+          <li>「每次取最大 / 最小」明显合理（如找零钱面值互为倍数时）</li>
+          <li>题目保证或经典模型：区间覆盖、活动安排、Huffman 思想等</li>
+        </ul>
+
+        <div class="pitfall">
+          <strong>贪心陷阱</strong>
+          「看起来最优」≠「一定最优」。反例：普通找零钱（面值 1,3,4，凑 6）贪心取 4+1+1=3 枚，
+          实际 3+3=2 枚更优。拿不准时用 DP / 搜索验证，或先想反例。
+        </div>
+      </section>
+
+      <section id="dp">
+        <h2>4. 动态规划是什么？</h2>
+        <p>
+          <strong>动态规划（DP）</strong>：把问题拆成<strong>子问题</strong>，用数组记下每个子问题的最优解（或方案数），
+          再按转移方程从小到大填表。关键：子问题会<strong>重叠</strong>，且满足<strong>最优子结构</strong>（大问题的最优由小问题最优推出）。
+        </p>
+
+        <h3>入门：爬楼梯 / 斐波那契型</h3>
+        <p>到第 <code>i</code> 级可以从 <code>i-1</code> 或 <code>i-2</code> 走来：</p>
+<pre><span class="t">int</span> f[<span class="n">105</span>];
+f[<span class="n">1</span>] = <span class="n">1</span>; f[<span class="n">2</span>] = <span class="n">2</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">3</span>; i &lt;= n; i++)
+    f[i] = f[i - <span class="n">1</span>] + f[i - <span class="n">2</span>];</pre>
+
+        <h3>CSP-J 常考：01 背包（简化）</h3>
+        <p>每件物品最多选一次，容量为 <code>W</code>，求最大价值：</p>
+<pre><span class="t">int</span> dp[<span class="n">1005</span>];  <span class="c">// dp[j] = 容量 j 时的最大价值</span>
+<span class="c">// 对每件物品 i（体积 w，价值 v）：</span>
+<span class="k">for</span> (<span class="t">int</span> j = W; j &gt;= w; j--)
+    dp[j] = max(dp[j], dp[j - w] + v);</pre>
+
+        <div class="tip">
+          <strong>写 DP 的三步</strong>
+          ① 状态是什么（<code>dp[i]</code> / <code>dp[i][j]</code> 含义）→
+          ② 转移怎么写 →
+          ③ 初值与答案在哪（<code>dp[n]</code> 还是 <code>max(dp)</code>）。
+        </div>
+
+        <div class="exam">
+          <strong>和递归搜索的区别</strong>
+          朴素递归会重复算同一状态；DP 把结果存下来（记忆化或递推），把指数暴搜压成多项式。
+        </div>
+      </section>
+
+      <section id="search">
+        <h2>5. 搜索算法是什么？</h2>
+        <p>
+          <strong>搜索</strong>：在「所有可能状态」里系统查找。CSP-J 主要掌握：
+        </p>
+        <ul>
+          <li><strong>DFS（深度优先）</strong>：一条路走到底，再回溯换路。适合：连通块、排列、回溯剪枝。</li>
+          <li><strong>BFS（广度优先）</strong>：一层层扩展。适合：迷宫<strong>最短步数</strong>（边权都为 1）。</li>
+        </ul>
+
+        <h3>DFS 骨架（连通块 / 泛洪）</h3>
+<pre><span class="t">int</span> dx[] = {<span class="n">0</span>, <span class="n">0</span>, <span class="n">1</span>, -<span class="n">1</span>};
+<span class="t">int</span> dy[] = {<span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+
+<span class="k">void</span> <span class="t">dfs</span>(<span class="t">int</span> x, <span class="t">int</span> y) {
+    vis[x][y] = <span class="n">1</span>;
+    <span class="k">for</span> (<span class="t">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; k++) {
+        <span class="t">int</span> nx = x + dx[k], ny = y + dy[k];
+        <span class="k">if</span> (合法 &amp;&amp; !vis[nx][ny] &amp;&amp; 是目标)
+            dfs(nx, ny);
+    }
+}</pre>
+
+        <h3>BFS 骨架（最短步数）</h3>
+<pre><span class="c">// 队列里存坐标，dist[][] 记步数</span>
+queue&lt;pair&lt;<span class="t">int</span>,<span class="t">int</span>&gt;&gt; q;
+q.push({sx, sy});
+dist[sx][sy] = <span class="n">0</span>;
+<span class="k">while</span> (!q.empty()) {
+    <span class="k">auto</span> [x, y] = q.front(); q.pop();
+    <span class="k">for</span> (<span class="t">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; k++) {
+        <span class="t">int</span> nx = x + dx[k], ny = y + dy[k];
+        <span class="k">if</span> (合法 &amp;&amp; dist[nx][ny] == -<span class="n">1</span>) {
+            dist[nx][ny] = dist[x][y] + <span class="n">1</span>;
+            q.push({nx, ny});
+        }
+    }
+}</pre>
+
+        <div class="tip">
+          <strong>和 flood fill 的关系</strong>
+          泛洪填充就是搜索的一种应用（DFS/BFS 染连通块）。项目里另有
+          <code>floodfill-tutorial.html</code> 可配合看。
+        </div>
+
+        <div class="pitfall">
+          <strong>易错</strong>
+          忘记 <code>vis</code> / <code>dist</code> 标记导致死循环；
+          求最短步却用 DFS（不一定最短）；
+          边界越界、四连通/八连通搞混。
+        </div>
+      </section>
+
+      <section id="diff">
+        <h2>6. 四者有什么区别？怎么选题？</h2>
+
+        <table>
+          <tr>
+            <th>对比点</th>
+            <th>二分</th>
+            <th>贪心</th>
+            <th>DP</th>
+            <th>搜索</th>
+          </tr>
+          <tr>
+            <td>在干什么</td>
+            <td>缩小答案范围</td>
+            <td>每步定一个选择</td>
+            <td>填表算最优/计数</td>
+            <td>枚举所有可能</td>
+          </tr>
+          <tr>
+            <td>要不要回溯</td>
+            <td>否</td>
+            <td>否</td>
+            <td>否（递推）</td>
+            <td>DFS 要；BFS 一般不</td>
+          </tr>
+          <tr>
+            <td>关键前提</td>
+            <td>单调性</td>
+            <td>贪心策略正确</td>
+            <td>最优子结构 + 重叠</td>
+            <td>状态可枚举完</td>
+          </tr>
+          <tr>
+            <td>和「最优」关系</td>
+            <td>常求边界最优</td>
+            <td>直接冲最优</td>
+            <td>系统地求最优</td>
+            <td>可求可行/最短；全枚举也可最优但慢</td>
+          </tr>
+          <tr>
+            <td>失败时会怎样</td>
+            <td>无单调 → 错</td>
+            <td>策略错 → WA</td>
+            <td>转移错/维数不够 → WA</td>
+            <td>爆时间 / 爆栈</td>
+          </tr>
+        </table>
+
+        <h3>做题决策树（临场可用）</h3>
+        <ol>
+          <li>数据有序 / 答案可二分 + 能写 check？→ <strong>二分</strong></li>
+          <li>排序后扫一遍、有经典贪心模型、能想通为什么对？→ <strong>贪心</strong></li>
+          <li>求最优或方案数，子问题重复，能定义状态？→ <strong>DP</strong></li>
+          <li>走迷宫、连通、排列、状态不多？→ <strong>搜索</strong>（最短步优先 BFS）</li>
+          <li>贪心拿不准 → 小数据用搜索验证；搜索太慢 → 想 DP / 剪枝 / 二分</li>
+        </ol>
+
+        <div class="exam">
+          <strong>它们会组合出现</strong>
+          例如：二分答案 + 贪心 check；搜索里用记忆化变成 DP；
+          贪心排序后再二分。考试不必死磕「纯种」，认准主思路即可。
+        </div>
+      </section>
+
+      <section id="demo">
+        <h2>7. 互动演示</h2>
+
+        <h3>7.1 二分查找一步一步看</h3>
+        <div class="demo-panel">
+          <div class="demo-controls">
+            <label>目标</label>
+            <input type="number" id="bs-target" value="23" />
+            <button type="button" class="primary" id="bs-step">下一步</button>
+            <button type="button" id="bs-reset">重置</button>
+          </div>
+          <div class="bars" id="bs-bars"></div>
+          <div class="demo-log" id="bs-log">点「下一步」开始。</div>
+        </div>
+
+        <h3>7.2 01 背包填表（一件物品）</h3>
+        <p>容量 W=10，物品体积 4、价值 5。看 <code>dp[j]</code> 从右往左更新。</p>
+        <div class="demo-panel">
+          <div class="demo-controls">
+            <button type="button" class="primary" id="dp-step">更新下一步</button>
+            <button type="button" id="dp-reset">重置</button>
+          </div>
+          <div class="dp-table" id="dp-table"></div>
+          <div class="demo-log" id="dp-log">点按钮，从 j=10 往左更新。</div>
+        </div>
+
+        <h3>7.3 BFS 走迷宫（最短路示意）</h3>
+        <p>从左上 S 到右下 T，灰格是墙。BFS 按层染色，先到达的就是最短步数。</p>
+        <div class="demo-panel">
+          <div class="demo-controls">
+            <button type="button" class="primary" id="bfs-step">扩展一步</button>
+            <button type="button" id="bfs-reset">重置</button>
+          </div>
+          <div class="grid-demo" id="bfs-grid"></div>
+          <div class="demo-log" id="bfs-log">点「扩展一步」观察队列扩散。</div>
+        </div>
+      </section>
+
+      <section id="cheat">
+        <h2>8. 考试小抄</h2>
+        <table>
+          <tr><th>关键词</th><th>优先想</th></tr>
+          <tr><td>有序、第 k 大边界、最大的最小、最小的最大</td><td>二分 / 二分答案</td></tr>
+          <tr><td>按时间/价值排序、每次选最早结束、能拿就拿</td><td>贪心</td></tr>
+          <tr><td>最大价值、方案数、前 i 个、容量 j</td><td>DP</td></tr>
+          <tr><td>迷宫、连通块、全排列、能否到达</td><td>DFS / BFS</td></tr>
+          <tr><td>最短步数（一步代价相同）</td><td>BFS</td></tr>
+        </table>
+<pre><span class="c">// 二分答案模板印象</span>
+<span class="t">int</span> L = <span class="n">0</span>, R = <span class="n">1e9</span>, ans = <span class="n">0</span>;
+<span class="k">while</span> (L &lt;= R) {
+    <span class="t">int</span> mid = (L + R) / <span class="n">2</span>;
+    <span class="k">if</span> (check(mid)) { ans = mid; L = mid + <span class="n">1</span>; }  <span class="c">// 求最大可行</span>
+    <span class="k">else</span> R = mid - <span class="n">1</span>;
+}
+
+<span class="c">// DP：先写清 dp 含义，再写转移，再定循环顺序</span>
+<span class="c">// 搜索：先标记再递归；BFS 用队列 + dist</span></pre>
+      </section>
+
+      <section id="quiz">
+        <h2>9. 自测题</h2>
+
+        <div class="quiz" data-answer="B">
+          <p><strong>Q1.</strong> 「在已经排好序的成绩表里查某个人是否存在」最合适的是？</p>
+          <button type="button" data-choice="A">贪心</button>
+          <button type="button" data-choice="B">二分</button>
+          <button type="button" data-choice="C">01 背包 DP</button>
+          <button type="button" data-choice="D">一定要用 DFS</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="C">
+          <p><strong>Q2.</strong> 「每件物品最多选一次，背包容量有限，求最大价值」是？</p>
+          <button type="button" data-choice="A">纯贪心一定对</button>
+          <button type="button" data-choice="B">二分查找</button>
+          <button type="button" data-choice="C">01 背包动态规划</button>
+          <button type="button" data-choice="D">只靠 BFS</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="A">
+          <p><strong>Q3.</strong> 迷宫中求从起点到终点的<strong>最少步数</strong>（上下左右一步），优先？</p>
+          <button type="button" data-choice="A">BFS</button>
+          <button type="button" data-choice="B">按距离贪心乱走</button>
+          <button type="button" data-choice="C">对坐标二分</button>
+          <button type="button" data-choice="D">一定要用 01 背包</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="D">
+          <p><strong>Q4.</strong> 下列关于四种思想的说法，正确的是？</p>
+          <button type="button" data-choice="A">贪心每步最优，所以任何最优问题都能用贪心</button>
+          <button type="button" data-choice="B">无序数组也能直接二分查找元素</button>
+          <button type="button" data-choice="C">DP 和搜索毫无关系</button>
+          <button type="button" data-choice="D">搜索可枚举；DP 常用来避免重复计算重叠子问题</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="B">
+          <p><strong>Q5.</strong> 「把答案 x 二分，再用 check(x) 判断够不够切出 K 段木头」属于？</p>
+          <button type="button" data-choice="A">只有贪心</button>
+          <button type="button" data-choice="B">二分答案（check 里可能再贪心）</button>
+          <button type="button" data-choice="C">必须 DFS</button>
+          <button type="button" data-choice="D">和单调性无关</button>
+          <div class="feedback"></div>
+        </div>
+      </section>
+
+      <footer>面向 CSP-J · 四大算法思想入门 · 本地打开即可学习</footer>
+    </main>
+  </div>
+
+  <script>
+    // —— 二分演示 ——
+    const BS_ARR = [3, 7, 11, 15, 18, 23, 29, 34, 41, 50];
+    let bsL = 0, bsR = BS_ARR.length - 1, bsDone = false;
+
+    function renderBars(mid) {
+      const box = document.getElementById("bs-bars");
+      box.innerHTML = "";
+      BS_ARR.forEach((v, i) => {
+        const d = document.createElement("div");
+        d.className = "bar";
+        d.textContent = v;
+        if (bsDone && v === Number(document.getElementById("bs-target").value) && i >= bsL && i <= bsR)
+          d.classList.add("found");
+        else if (i < bsL || i > bsR) d.classList.add("drop");
+        else if (i === mid) d.classList.add("mid");
+        else if (i === bsL) d.classList.add("lo");
+        else if (i === bsR) d.classList.add("hi");
+        box.appendChild(d);
+      });
+    }
+
+    function bsReset() {
+      bsL = 0;
+      bsR = BS_ARR.length - 1;
+      bsDone = false;
+      renderBars(-1);
+      document.getElementById("bs-log").textContent =
+        "数组已排序。L=0, R=" + bsR + "。点「下一步」。";
+    }
+
+    document.getElementById("bs-reset").addEventListener("click", bsReset);
+    document.getElementById("bs-step").addEventListener("click", () => {
+      if (bsDone) {
+        document.getElementById("bs-log").textContent = "已结束，请重置。";
+        return;
+      }
+      const x = Number(document.getElementById("bs-target").value);
+      if (bsL > bsR) {
+        bsDone = true;
+        renderBars(-1);
+        document.getElementById("bs-log").textContent = "区间空了：找不到 " + x;
+        return;
+      }
+      const mid = Math.floor((bsL + bsR) / 2);
+      renderBars(mid);
+      const v = BS_ARR[mid];
+      let msg = "L=" + bsL + ", R=" + bsR + ", mid=" + mid + " → a[mid]=" + v + "。";
+      if (v === x) {
+        bsDone = true;
+        renderBars(mid);
+        msg += " 找到了！";
+      } else if (v < x) {
+        bsL = mid + 1;
+        msg += " 太小，L = mid+1 → " + bsL;
+      } else {
+        bsR = mid - 1;
+        msg += " 太大，R = mid-1 → " + bsR;
+      }
+      document.getElementById("bs-log").textContent = msg;
+    });
+    bsReset();
+
+    // —— DP 演示 ——
+    const W = 10, ITEM_W = 4, ITEM_V = 5;
+    let dp = [], dpJ = W;
+
+    function renderDp(highlight) {
+      const box = document.getElementById("dp-table");
+      box.innerHTML = "";
+      for (let j = 0; j <= W; j++) {
+        const d = document.createElement("div");
+        d.className = "dp-cell";
+        d.innerHTML = "j=" + j + "<br>" + dp[j];
+        if (j === highlight) d.classList.add("fill");
+        if (highlight >= 0 && j === highlight - ITEM_W) d.classList.add("use");
+        box.appendChild(d);
+      }
+    }
+
+    function dpReset() {
+      dp = Array(W + 1).fill(0);
+      dpJ = W;
+      renderDp(-1);
+      document.getElementById("dp-log").textContent =
+        "初值全 0。接下来对 j 从 " + W + " 降到 " + ITEM_W + "：dp[j]=max(dp[j], dp[j-4]+5)";
+    }
+
+    document.getElementById("dp-reset").addEventListener("click", dpReset);
+    document.getElementById("dp-step").addEventListener("click", () => {
+      if (dpJ < ITEM_W) {
+        document.getElementById("dp-log").textContent =
+          "更新完毕。最大价值在 dp[" + W + "] = " + dp[W] + "（也可看整个表的最大值）。";
+        renderDp(-1);
+        return;
+      }
+      const j = dpJ;
+      const old = dp[j];
+      const cand = dp[j - ITEM_W] + ITEM_V;
+      dp[j] = Math.max(old, cand);
+      renderDp(j);
+      document.getElementById("dp-log").textContent =
+        "j=" + j + ": max(" + old + ", dp[" + (j - ITEM_W) + "]+5=" + cand + ") → " + dp[j];
+      dpJ--;
+    });
+    dpReset();
+
+    // —— BFS 演示 ——
+    // 0 空, 1 墙；S=(0,0) T=(4,4)
+    const MAZE = [
+      [0, 0, 0, 1, 0],
+      [0, 1, 0, 1, 0],
+      [0, 1, 0, 0, 0],
+      [0, 0, 1, 1, 0],
+      [1, 0, 0, 0, 0],
+    ];
+    const DX = [0, 0, 1, -1], DY = [1, -1, 0, 0];
+    let dist, queue, bfsDone;
+
+    function cellKey(x, y) { return x + "," + y; }
+
+    function renderMaze(cur) {
+      const box = document.getElementById("bfs-grid");
+      box.innerHTML = "";
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+          const d = document.createElement("div");
+          d.className = "cell";
+          if (MAZE[i][j] === 1) {
+            d.classList.add("wall");
+            d.textContent = "";
+          } else if (i === 0 && j === 0) {
+            d.classList.add("start");
+            d.textContent = "S";
+          } else if (i === 4 && j === 4) {
+            d.textContent = "T";
+            if (dist[i][j] >= 0) d.classList.add("path");
+          } else if (cur && cur[0] === i && cur[1] === j) {
+            d.classList.add("cur");
+            d.textContent = dist[i][j];
+          } else if (dist[i][j] >= 0) {
+            d.classList.add("vis");
+            d.textContent = dist[i][j];
+          }
+          box.appendChild(d);
+        }
+      }
+    }
+
+    function bfsReset() {
+      dist = Array.from({ length: 5 }, () => Array(5).fill(-1));
+      dist[0][0] = 0;
+      queue = [[0, 0]];
+      bfsDone = false;
+      renderMaze(null);
+      document.getElementById("bfs-log").textContent = "起点入队，dist=0。";
+    }
+
+    document.getElementById("bfs-reset").addEventListener("click", bfsReset);
+    document.getElementById("bfs-step").addEventListener("click", () => {
+      if (bfsDone) {
+        document.getElementById("bfs-log").textContent = "已结束，请重置。";
+        return;
+      }
+      if (queue.length === 0) {
+        bfsDone = true;
+        document.getElementById("bfs-log").textContent = "队列空了，无法到达。";
+        return;
+      }
+      const [x, y] = queue.shift();
+      if (x === 4 && y === 4) {
+        bfsDone = true;
+        renderMaze([x, y]);
+        document.getElementById("bfs-log").textContent =
+          "到达终点！最短步数 = " + dist[4][4];
+        return;
+      }
+      let added = [];
+      for (let k = 0; k < 4; k++) {
+        const nx = x + DX[k], ny = y + DY[k];
+        if (nx < 0 || nx >= 5 || ny < 0 || ny >= 5) continue;
+        if (MAZE[nx][ny] === 1 || dist[nx][ny] !== -1) continue;
+        dist[nx][ny] = dist[x][y] + 1;
+        queue.push([nx, ny]);
+        added.push("(" + nx + "," + ny + ")");
+      }
+      renderMaze([x, y]);
+      document.getElementById("bfs-log").textContent =
+        "弹出 (" + x + "," + y + ")，新入队: " + (added.join(" ") || "无") +
+        "。队列长度 " + queue.length;
+    });
+    bfsReset();
+
+    // —— 自测 ——
+    document.querySelectorAll(".quiz").forEach((box) => {
+      const ans = box.dataset.answer;
+      const fb = box.querySelector(".feedback");
+      box.querySelectorAll("button[data-choice]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const choice = btn.dataset.choice;
+          if (choice === ans) {
+            fb.textContent = "✓ 正确！";
+            fb.className = "feedback ok";
+          } else {
+            fb.textContent = "✗ 再想想。提示：回到对应章节看前提与用途。";
+            fb.className = "feedback bad";
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSP-J · 泛洪填充入门教程</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --card: #fffdf9;
+      --ink: #1c2430;
+      --muted: #5c6b7a;
+      --line: #d9d0c3;
+      --accent: #1f6f5b;
+      --accent-soft: #e5f2ed;
+      --warn: #9a4d1c;
+      --warn-soft: #f8ebe1;
+      --code-bg: #1e2430;
+      --code-fg: #e8eef5;
+      --land: #3d8b6e;
+      --water: #dce8f0;
+      --visited: #f0a04b;
+      --current: #e85d4c;
+      --paint: #6b8fd4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 70% 40% at 10% 0%, #e8efe8 0%, transparent 55%),
+        radial-gradient(ellipse 50% 35% at 100% 10%, #f0e8dc 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      gap: 0;
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.4rem 1rem;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 249, 0.92);
+      backdrop-filter: blur(6px);
+    }
+
+    nav .brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.35rem;
+      color: var(--accent);
+    }
+
+    nav .sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    nav a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      padding: 0.35rem 0.45rem;
+      border-radius: 6px;
+      margin-bottom: 0.15rem;
+    }
+
+    nav a:hover { background: var(--accent-soft); color: var(--accent); }
+
+    main { padding: 1.75rem 2rem 3rem; }
+
+    h1 {
+      font-size: 1.7rem;
+      margin: 0 0 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      color: var(--muted);
+      margin: 0 0 1.5rem;
+      max-width: 42em;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem 1.4rem;
+      margin-bottom: 1.1rem;
+      scroll-margin-top: 1rem;
+    }
+
+    h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+
+    h3 {
+      margin: 1.1rem 0 0.45rem;
+      font-size: 1rem;
+    }
+
+    p { margin: 0.55rem 0; }
+
+    ul, ol { margin: 0.4rem 0 0.6rem; padding-left: 1.3rem; }
+    li { margin: 0.25rem 0; }
+
+    code, .mono {
+      font-family: ui-monospace, Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    p code, li code, td code {
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 0.05em 0.35em;
+      border-radius: 4px;
+    }
+
+    pre {
+      margin: 0.7rem 0;
+      padding: 0.9rem 1rem;
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    pre .c { color: #8b9bb0; }
+    pre .k { color: #7ec8a3; }
+    pre .t { color: #9ecbff; }
+    pre .s { color: #e8b86d; }
+    pre .n { color: #d4a5ff; }
+
+    .tip, .exam, .pitfall {
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      margin: 0.8rem 0;
+      font-size: 0.92rem;
+    }
+
+    .tip { background: var(--accent-soft); border-left: 4px solid var(--accent); }
+    .exam { background: #eef3f8; border-left: 4px solid #3d6f99; }
+    .pitfall { background: var(--warn-soft); border-left: 4px solid var(--warn); }
+
+    .tip strong, .exam strong, .pitfall strong { display: block; margin-bottom: 0.2rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 0.6rem 0;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+    }
+
+    th { background: #f0ebe3; }
+
+    .quiz {
+      background: #faf8f4;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin-top: 0.8rem;
+    }
+
+    .quiz button {
+      margin: 0.35rem 0.35rem 0 0;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+
+    .quiz button:hover { border-color: var(--accent); color: var(--accent); }
+
+    .quiz .feedback {
+      margin-top: 0.55rem;
+      font-size: 0.9rem;
+      min-height: 1.3em;
+      color: var(--muted);
+    }
+
+    .quiz .feedback.ok { color: var(--accent); }
+    .quiz .feedback.bad { color: var(--warn); }
+
+    /* —— 动画演示区 —— */
+    .demo-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.6rem;
+      align-items: start;
+    }
+
+    .demo-panel {
+      background: #faf8f4;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.9rem;
+    }
+
+    .demo-panel h3 {
+      margin: 0 0 0.55rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .demo-controls button {
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .demo-controls button:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .demo-controls button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .demo-controls button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .demo-controls button.primary:hover:not(:disabled) {
+      filter: brightness(1.08);
+      color: #fff;
+    }
+
+    .demo-controls label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .demo-controls input[type="range"] {
+      width: 90px;
+      accent-color: var(--accent);
+    }
+
+    .grid-board {
+      display: inline-grid;
+      gap: 3px;
+      padding: 6px;
+      background: #cfc6b8;
+      border-radius: 8px;
+      user-select: none;
+    }
+
+    .cell {
+      width: 36px;
+      height: 36px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-family: ui-monospace, Consolas, monospace;
+      color: rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+
+    .cell.land { background: var(--land); color: rgba(255,255,255,0.5); }
+    .cell.water { background: var(--water); }
+    .cell.paint { background: var(--paint); color: rgba(255,255,255,0.55); }
+    .cell.visited { background: var(--visited); color: rgba(255,255,255,0.6); }
+    .cell.current {
+      background: var(--current);
+      color: #fff;
+      transform: scale(1.08);
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--current);
+      z-index: 1;
+    }
+    .cell:hover:not(.animating) { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 0.7rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .swatch.land { background: var(--land); }
+    .swatch.water { background: var(--water); border: 1px solid var(--line); }
+    .swatch.paint { background: var(--paint); }
+    .swatch.visited { background: var(--visited); }
+    .swatch.current { background: var(--current); }
+
+    .status {
+      margin-top: 0.55rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+      min-height: 1.4em;
+    }
+
+    .status .muted { color: var(--muted); }
+
+    .mini-map {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .dirs {
+      display: flex;
+      justify-content: center;
+      margin: 0.8rem 0;
+    }
+
+    .dirs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 48px);
+      grid-template-rows: repeat(3, 48px);
+      gap: 4px;
+    }
+
+    .dirs-grid .d {
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      background: #f0ebe3;
+      color: var(--muted);
+    }
+
+    .dirs-grid .d.center {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .dirs-grid .d.ok {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      border: 1px solid #b7d9cc;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 0.5rem 0 1rem;
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      nav {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      nav a { display: inline-block; }
+      main { padding: 1.2rem; }
+      .demo-wrap { grid-template-columns: 1fr; }
+      .cell { width: 30px; height: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand">泛洪填充</div>
+      <div class="sub">CSP-J 应试 · 初中友好</div>
+      <a href="#what">1. 是什么</a>
+      <a href="#grid">2. 格子与方向</a>
+      <a href="#rule">3. 三条规则</a>
+      <a href="#anim">4. 动画演示</a>
+      <a href="#code">5. 怎么写代码</a>
+      <a href="#islands">6. 数岛屿</a>
+      <a href="#pitfalls">7. 易错点</a>
+      <a href="#exam">8. 考试小抄</a>
+      <a href="#quiz">9. 自测题</a>
+    </nav>
+
+    <main>
+      <h1>CSP-J · 泛洪填充入门教程</h1>
+      <p class="lead">
+        泛洪填充就像画图软件里的「油漆桶」：点一下，颜色就会沿着相连的格子一路涂开。
+        本页用大白话 + 动画讲清楚；不要求你先懂高深名词。
+      </p>
+
+      <section id="what">
+        <h2>1. 泛洪填充是什么？</h2>
+        <p>想象一张方格纸地图：</p>
+        <ul>
+          <li>有的格子是<strong>陆地</strong>（可以走）</li>
+          <li>有的格子是<strong>水</strong>（不能走）</li>
+        </ul>
+        <p>
+          你从某一格陆地出发，不断走到上下左右相邻的陆地，把整片连在一起的陆地都「涂」一遍——
+          这就叫<strong>泛洪填充</strong>（英文 Flood Fill，可以记成「洪水一样往外漫」）。
+        </p>
+        <table>
+          <tr><th>生活例子</th><th>题目里对应什么</th></tr>
+          <tr>
+            <td>油漆桶一键填色</td>
+            <td>把同一片区域改成同一个标记</td>
+          </tr>
+          <tr>
+            <td>数地图上有几块大陆</td>
+            <td>数有几片「连在一起的陆地」</td>
+          </tr>
+          <tr>
+            <td>迷宫里从入口能走到哪</td>
+            <td>从起点出发，能到达哪些格子</td>
+          </tr>
+        </table>
+        <div class="tip">
+          <strong>一句话记住</strong>
+          从一个格子出发 → 把所有<strong>能连上</strong>的同类格子都处理完。
+        </div>
+      </section>
+
+      <section id="grid">
+        <h2>2. 格子地图与四个方向</h2>
+        <p>
+          考试里地图通常用二维数组存，比如 <code>a[i][j]</code>：
+          <code>i</code> 是第几行，<code>j</code> 是第几列。
+        </p>
+        <p>CSP-J 最常见的是<strong>四连通</strong>：只能走<strong>上、下、左、右</strong>（不能斜走，除非题目明文允许）。</p>
+
+        <div class="dirs">
+          <div class="dirs-grid">
+            <div class="d"></div>
+            <div class="d ok">上</div>
+            <div class="d"></div>
+            <div class="d ok">左</div>
+            <div class="d center">当前</div>
+            <div class="d ok">右</div>
+            <div class="d"></div>
+            <div class="d ok">下</div>
+            <div class="d"></div>
+          </div>
+        </div>
+
+        <p>代码里常用两个小数组表示四个方向（背下来很有用）：</p>
+<pre><span class="t">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};  <span class="c">// 行：上、下、不变、不变</span>
+<span class="t">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};  <span class="c">// 列：不变、不变、左、右</span></pre>
+
+        <div class="exam">
+          <strong>考试提醒</strong>
+          走之前先检查：有没有<strong>走出地图边界</strong>？目标格子是不是<strong>允许走</strong>的？有没有<strong>已经涂过</strong>？
+        </div>
+      </section>
+
+      <section id="rule">
+        <h2>3. 只需记住三条规则</h2>
+        <p>别被「某某搜索」这种名字吓到。你只要按下面做就行：</p>
+        <ol>
+          <li><strong>能不能进？</strong> 出界、是水、已经涂过 → 立刻停，不要进。</li>
+          <li><strong>进来就先涂上。</strong> 改成「已访问」或换成新颜色，避免以后又涂回来。</li>
+          <li><strong>再看四个邻居。</strong> 对上、下、左、右各试一次，能进就继续涂。</li>
+        </ol>
+        <p>怎么「继续」有两种写法，效果一样，选一种练熟即可：</p>
+        <table>
+          <tr><th>写法</th><th>大白话</th><th>适合</th></tr>
+          <tr>
+            <td>函数自己再调用自己<br><span class="muted">（有人叫递归 / 深度优先）</span></td>
+            <td>走到一格，马上钻进邻居，一路钻到底，再回头</td>
+            <td>代码短，CSP-J 很常见</td>
+          </tr>
+          <tr>
+            <td>用队列排队<br><span class="muted">（有人叫广度优先）</span></td>
+            <td>像买票：先处理排在前面的格子，再处理新来的</td>
+            <td>不容易「递归太深」炸栈</td>
+          </tr>
+        </table>
+        <div class="tip">
+          <strong>给初中生的建议</strong>
+          先学会「函数自己调用自己」那一版。名字先不用背；会写、会查边界，比背名词重要。
+        </div>
+      </section>
+
+      <section id="anim">
+        <h2>4. 动画演示：点一下，看它怎么漫开</h2>
+        <p>
+          绿色是陆地，浅蓝是水。点任一格陆地，看「油漆」如何一格格涂开。
+          红色是<strong>正在处理</strong>的格子，橙色是<strong>已经涂过</strong>的。
+        </p>
+
+        <div class="demo-wrap">
+          <div class="demo-panel">
+            <h3>油漆桶演示</h3>
+            <div class="demo-controls">
+              <button type="button" class="primary" id="btn-paint">用当前地图演示</button>
+              <button type="button" id="btn-reset-paint">重置颜色</button>
+              <button type="button" id="btn-rand">换一张随机地图</button>
+              <label>速度 <input type="range" id="speed" min="80" max="500" value="220" /></label>
+            </div>
+            <p style="margin:0 0 0.5rem;font-size:0.85rem;color:var(--muted);">
+              提示：也可以直接<strong>点击绿色格子</strong>，从那里开始填充。
+            </p>
+            <div id="board-paint" class="grid-board" aria-label="油漆桶网格"></div>
+            <div class="legend">
+              <span><i class="swatch land"></i> 陆地</span>
+              <span><i class="swatch water"></i> 水</span>
+              <span><i class="swatch paint"></i> 已填充</span>
+              <span><i class="swatch current"></i> 当前格</span>
+            </div>
+            <div class="status" id="status-paint"><span class="muted">点击陆地开始…</span></div>
+          </div>
+
+          <div class="demo-panel">
+            <h3>数岛屿演示</h3>
+            <div class="demo-controls">
+              <button type="button" class="primary" id="btn-islands">开始数岛屿</button>
+              <button type="button" id="btn-reset-islands">重置</button>
+            </div>
+            <div id="board-islands" class="grid-board" aria-label="岛屿网格"></div>
+            <div class="legend">
+              <span><i class="swatch land"></i> 未访问陆地</span>
+              <span><i class="swatch water"></i> 水</span>
+              <span><i class="swatch visited"></i> 已访问</span>
+              <span><i class="swatch current"></i> 当前格</span>
+            </div>
+            <div class="status" id="status-islands"><span class="muted">点按钮，看算法一块块找陆地。</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="code">
+        <h2>5. 怎么写成 C++？</h2>
+        <p>下面是「函数自己调用自己」的版本。读注释就够理解流程：</p>
+<pre><span class="t">int</span> n, m;                 <span class="c">// 地图有 n 行 m 列</span>
+<span class="t">int</span> a[<span class="n">105</span>][<span class="n">105</span>];         <span class="c">// 1=陆地, 0=水</span>
+<span class="t">bool</span> vis[<span class="n">105</span>][<span class="n">105</span>];      <span class="c">// 有没有涂过</span>
+<span class="t">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+<span class="t">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">void</span> <span class="t">flood</span>(<span class="t">int</span> x, <span class="t">int</span> y) {
+    <span class="c">// 规则1：不能进就返回</span>
+    <span class="k">if</span> (x &lt; <span class="n">1</span> || x &gt; n || y &lt; <span class="n">1</span> || y &gt; m) <span class="k">return</span>;
+    <span class="k">if</span> (a[x][y] == <span class="n">0</span> || vis[x][y]) <span class="k">return</span>;
+
+    <span class="c">// 规则2：进来先涂</span>
+    vis[x][y] = <span class="k">true</span>;
+
+    <span class="c">// 规则3：尝试四个邻居</span>
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">4</span>; i++) {
+        flood(x + dx[i], y + dy[i]);
+    }
+}</pre>
+
+        <div class="tip">
+          <strong>为什么要 vis？</strong>
+          如果不标记「已经来过」，算法会在两个相邻格子之间来回走，永远停不下来。
+        </div>
+
+        <h3>也可以边走边改地图（少开一个数组）</h3>
+        <p>有的题允许你直接把陆地改成水，表示「涂过了」：</p>
+<pre><span class="k">void</span> <span class="t">flood</span>(<span class="t">int</span> x, <span class="t">int</span> y) {
+    <span class="k">if</span> (x &lt; <span class="n">1</span> || x &gt; n || y &lt; <span class="n">1</span> || y &gt; m) <span class="k">return</span>;
+    <span class="k">if</span> (a[x][y] == <span class="n">0</span>) <span class="k">return</span>;  <span class="c">// 水，或已被改成 0</span>
+    a[x][y] = <span class="n">0</span>;                   <span class="c">// 涂掉</span>
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">4</span>; i++)
+        flood(x + dx[i], y + dy[i]);
+}</pre>
+      </section>
+
+      <section id="islands">
+        <h2>6. 经典题：数有几座岛</h2>
+        <p>思路超级直接：</p>
+        <ol>
+          <li>扫完整张地图。</li>
+          <li>碰到一块<strong>还没涂过的陆地</strong> → 岛屿数量 <code>+1</code>，然后从这里泛洪，把整座岛涂完。</li>
+          <li>继续扫，直到结束。</li>
+        </ol>
+<pre><span class="t">int</span> ans = <span class="n">0</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= n; i++) {
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">1</span>; j &lt;= m; j++) {
+        <span class="k">if</span> (a[i][j] == <span class="n">1</span> &amp;&amp; !vis[i][j]) {
+            ans++;
+            flood(i, j);   <span class="c">// 把这座岛全部涂掉</span>
+        }
+    }
+}
+cout &lt;&lt; ans &lt;&lt; endl;</pre>
+
+        <div class="exam">
+          <strong>为什么这样是对的？</strong>
+          每找到一个新起点，就说明发现了一座新岛；泛洪会把这座岛上的格子都标记掉，所以不会重复计数。
+        </div>
+
+        <p>下面是一张示例地图（1=陆地，0=水），你可以对照动画区里的「数岛屿」按钮：</p>
+        <div class="mini-map" id="mini-map">1 1 0 0 0
+1 1 0 1 1
+0 0 0 1 1
+0 1 0 0 0
+0 1 1 0 0</div>
+        <p>这张图里有 <strong>3</strong> 座岛（左上、右中、左下）。</p>
+      </section>
+
+      <section id="pitfalls">
+        <h2>7. 易错点速查</h2>
+        <ol>
+          <li><strong>忘了判边界</strong> → 数组越界，程序可能崩溃或答案错乱。</li>
+          <li><strong>忘了标记已访问</strong> → 死循环，或超时。</li>
+          <li><strong>下标从 0 还是从 1</strong>：读题和读入方式要一致；本教程示例用 1…n。</li>
+          <li><strong>斜着能不能走</strong>：默认四连通；八连通要题目明确说。</li>
+          <li><strong>地图太大 + 递归太深</strong>：极少数情况可能栈溢出；这时可改用队列写法（了解即可）。</li>
+        </ol>
+        <div class="pitfall">
+          <strong>口诀</strong>
+          先查「能不能进」→ 再「涂上」→ 最后「扩四个邻居」。顺序别反，尤其不要「还没涂就先扩邻居」。
+        </div>
+      </section>
+
+      <section id="exam">
+        <h2>8. 考试小抄（临考看这页）</h2>
+<pre><span class="k">#include</span> &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="t">int</span> n, m;
+<span class="t">int</span> a[<span class="n">105</span>][<span class="n">105</span>];
+<span class="t">bool</span> vis[<span class="n">105</span>][<span class="n">105</span>];
+<span class="t">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+<span class="t">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">void</span> <span class="t">flood</span>(<span class="t">int</span> x, <span class="t">int</span> y) {
+    <span class="k">if</span> (x &lt; <span class="n">1</span> || x &gt; n || y &lt; <span class="n">1</span> || y &gt; m) <span class="k">return</span>;
+    <span class="k">if</span> (a[x][y] == <span class="n">0</span> || vis[x][y]) <span class="k">return</span>;
+    vis[x][y] = <span class="k">true</span>;
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">4</span>; i++)
+        flood(x + dx[i], y + dy[i]);
+}
+
+<span class="t">int</span> <span class="t">main</span>() {
+    cin &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= n; i++)
+        <span class="k">for</span> (<span class="t">int</span> j = <span class="n">1</span>; j &lt;= m; j++)
+            cin &gt;&gt; a[i][j];
+
+    <span class="t">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= n; i++)
+        <span class="k">for</span> (<span class="t">int</span> j = <span class="n">1</span>; j &lt;= m; j++)
+            <span class="k">if</span> (a[i][j] == <span class="n">1</span> &amp;&amp; !vis[i][j]) {
+                ans++;
+                flood(i, j);
+            }
+    cout &lt;&lt; ans &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+        <div class="tip">
+          <strong>临考清单</strong>
+          四方向数组 · 边界判断 · 访问标记 · 「发现新陆地 → 计数 + 整片涂掉」。
+        </div>
+      </section>
+
+      <section id="quiz">
+        <h2>9. 三道自测题</h2>
+
+        <div class="quiz" data-answer="B">
+          <p><strong>Q1.</strong> 泛洪填充最像下面哪件事？</p>
+          <button type="button" data-choice="A">把数组从大到小排序</button>
+          <button type="button" data-choice="B">油漆桶：把相连的同色区域一口气涂完</button>
+          <button type="button" data-choice="C">只检查某一个格子，不管邻居</button>
+          <button type="button" data-choice="D">把所有格子无成随机颜色</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="C">
+          <p><strong>Q2.</strong> 从某格陆地开始泛洪时，下面哪一步最容易导致死循环？</p>
+          <button type="button" data-choice="A">检查是否走出地图</button>
+          <button type="button" data-choice="B">检查是不是水</button>
+          <button type="button" data-choice="C">忘记标记「已经来过」</button>
+          <button type="button" data-choice="D">只用上、下、左、右四个方向</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="A">
+          <p><strong>Q3.</strong> 数岛屿时，第一次碰到还没访问的陆地，应该做什么？</p>
+          <button type="button" data-choice="A">岛屿数 +1，并从这里把整座岛涂完</button>
+          <button type="button" data-choice="B">直接结束程序</button>
+          <button type="button" data-choice="C">只把这一格改成水，不要管邻居</button>
+          <button type="button" data-choice="D">把整张地图清空再重来</button>
+          <div class="feedback"></div>
+        </div>
+      </section>
+
+      <footer>面向 CSP-J · 泛洪填充入门 · 本地用浏览器打开即可学习</footer>
+    </main>
+  </div>
+
+  <script>
+    // —— 示例地图（与文中一致）——
+    const SAMPLE = [
+      [1, 1, 0, 0, 0],
+      [1, 1, 0, 1, 1],
+      [0, 0, 0, 1, 1],
+      [0, 1, 0, 0, 0],
+      [0, 1, 1, 0, 0],
+    ];
+
+    const DX = [-1, 1, 0, 0];
+    const DY = [0, 0, -1, 1];
+
+    let paintMap = SAMPLE.map((r) => r.slice());
+    let islandMap = SAMPLE.map((r) => r.slice());
+    let animating = false;
+    let timer = null;
+
+    function sleep(ms) {
+      return new Promise((resolve) => {
+        timer = setTimeout(resolve, ms);
+      });
+    }
+
+    function getDelay() {
+      const el = document.getElementById("speed");
+      // 滑条越大越慢：取反向
+      return 580 - Number(el.value);
+    }
+
+    function clearTimer() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
+
+    function renderBoard(containerId, map, mode, extras = {}) {
+      const el = document.getElementById(containerId);
+      const rows = map.length;
+      const cols = map[0].length;
+      el.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+      el.innerHTML = "";
+
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          const key = i + "," + j;
+          const v = map[i][j];
+
+          if (extras.current && extras.current[0] === i && extras.current[1] === j) {
+            cell.classList.add("current");
+          } else if (extras.painted && extras.painted.has(key)) {
+            cell.classList.add(mode === "islands" ? "visited" : "paint");
+          } else if (v === 1) {
+            cell.classList.add("land");
+          } else {
+            cell.classList.add("water");
+          }
+
+          if (animating) cell.classList.add("animating");
+          cell.dataset.r = i;
+          cell.dataset.c = j;
+          cell.textContent = v;
+          el.appendChild(cell);
+        }
+      }
+    }
+
+    function randomMap(n = 5, m = 5) {
+      const g = [];
+      for (let i = 0; i < n; i++) {
+        const row = [];
+        for (let j = 0; j < m; j++) {
+          row.push(Math.random() < 0.45 ? 1 : 0);
+        }
+        g.push(row);
+      }
+      // 保证至少有一块陆地，方便演示
+      if (!g.some((r) => r.includes(1))) g[2][2] = 1;
+      return g;
+    }
+
+    function updateMiniMap(map) {
+      document.getElementById("mini-map").textContent = map
+        .map((r) => r.join(" "))
+        .join("\n");
+    }
+
+    // —— 油漆桶：递归顺序可视化 ——
+    async function animatePaint(sr, sc) {
+      if (animating) return;
+      if (paintMap[sr][sc] !== 1) {
+        document.getElementById("status-paint").innerHTML =
+          '<span class="muted">请点绿色陆地格子。</span>';
+        return;
+      }
+
+      animating = true;
+      setButtonsDisabled(true);
+      const painted = new Set();
+      let steps = 0;
+
+      async function flood(x, y) {
+        if (x < 0 || x >= paintMap.length || y < 0 || y >= paintMap[0].length) return;
+        const key = x + "," + y;
+        if (paintMap[x][y] !== 1 || painted.has(key)) return;
+
+        painted.add(key);
+        steps++;
+        renderBoard("board-paint", paintMap, "paint", { painted, current: [x, y] });
+        document.getElementById("status-paint").textContent =
+          `正在涂第 ${steps} 格：行 ${x + 1}，列 ${y + 1}`;
+        await sleep(getDelay());
+
+        for (let d = 0; d < 4; d++) {
+          await flood(x + DX[d], y + DY[d]);
+        }
+      }
+
+      await flood(sr, sc);
+      renderBoard("board-paint", paintMap, "paint", { painted });
+      document.getElementById("status-paint").textContent =
+        `完成！这一片一共涂了 ${steps} 格。`;
+      animating = false;
+      setButtonsDisabled(false);
+    }
+
+    // —— 数岛屿可视化 ——
+    async function animateIslands() {
+      if (animating) return;
+      animating = true;
+      setButtonsDisabled(true);
+
+      const painted = new Set();
+      let islands = 0;
+      const rows = islandMap.length;
+      const cols = islandMap[0].length;
+
+      async function flood(x, y) {
+        if (x < 0 || x >= rows || y < 0 || y >= cols) return;
+        const key = x + "," + y;
+        if (islandMap[x][y] !== 1 || painted.has(key)) return;
+
+        painted.add(key);
+        renderBoard("board-islands", islandMap, "islands", { painted, current: [x, y] });
+        document.getElementById("status-islands").textContent =
+          `正在涂第 ${islands} 座岛… 当前：(${x + 1}, ${y + 1})`;
+        await sleep(getDelay());
+
+        for (let d = 0; d < 4; d++) {
+          await flood(x + DX[d], y + DY[d]);
+        }
+      }
+
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const key = i + "," + j;
+          if (islandMap[i][j] === 1 && !painted.has(key)) {
+            islands++;
+            document.getElementById("status-islands").textContent =
+              `发现第 ${islands} 座岛！从 (${i + 1}, ${j + 1}) 开始涂…`;
+            await sleep(getDelay() * 1.2);
+            await flood(i, j);
+          }
+        }
+      }
+
+      renderBoard("board-islands", islandMap, "islands", { painted });
+      document.getElementById("status-islands").textContent =
+        `数完了：一共有 ${islands} 座岛。`;
+      animating = false;
+      setButtonsDisabled(false);
+    }
+
+    function setButtonsDisabled(disabled) {
+      [
+        "btn-paint", "btn-reset-paint", "btn-rand",
+        "btn-islands", "btn-reset-islands",
+      ].forEach((id) => {
+        document.getElementById(id).disabled = disabled;
+      });
+    }
+
+    function findFirstLand(map) {
+      for (let i = 0; i < map.length; i++) {
+        for (let j = 0; j < map[0].length; j++) {
+          if (map[i][j] === 1) return [i, j];
+        }
+      }
+      return null;
+    }
+
+    function resetPaintView() {
+      clearTimer();
+      animating = false;
+      setButtonsDisabled(false);
+      renderBoard("board-paint", paintMap, "paint");
+      document.getElementById("status-paint").innerHTML =
+        '<span class="muted">点击陆地开始…</span>';
+    }
+
+    function resetIslandView() {
+      clearTimer();
+      animating = false;
+      setButtonsDisabled(false);
+      renderBoard("board-islands", islandMap, "islands");
+      document.getElementById("status-islands").innerHTML =
+        '<span class="muted">点按钮，看算法一块块找陆地。</span>';
+    }
+
+    // 初始渲染
+    renderBoard("board-paint", paintMap, "paint");
+    renderBoard("board-islands", islandMap, "islands");
+
+    document.getElementById("board-paint").addEventListener("click", (e) => {
+      const cell = e.target.closest(".cell");
+      if (!cell || animating) return;
+      animatePaint(Number(cell.dataset.r), Number(cell.dataset.c));
+    });
+
+    document.getElementById("btn-paint").addEventListener("click", () => {
+      const start = findFirstLand(paintMap);
+      if (!start) {
+        document.getElementById("status-paint").textContent = "这张地图没有陆地。";
+        return;
+      }
+      // 先清掉上一次的涂色显示
+      renderBoard("board-paint", paintMap, "paint");
+      animatePaint(start[0], start[1]);
+    });
+
+    document.getElementById("btn-reset-paint").addEventListener("click", resetPaintView);
+
+    document.getElementById("btn-rand").addEventListener("click", () => {
+      if (animating) return;
+      paintMap = randomMap();
+      islandMap = paintMap.map((r) => r.slice());
+      updateMiniMap(paintMap);
+      resetPaintView();
+      resetIslandView();
+    });
+
+    document.getElementById("btn-islands").addEventListener("click", () => {
+      renderBoard("board-islands", islandMap, "islands");
+      animateIslands();
+    });
+
+    document.getElementById("btn-reset-islands").addEventListener("click", resetIslandView);
+
+    // quiz
+    document.querySelectorAll(".quiz").forEach((box) => {
+      const ans = box.dataset.answer;
+      const fb = box.querySelector(".feedback");
+      box.querySelectorAll("button[data-choice]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const choice = btn.dataset.choice;
+          if (choice === ans) {
+            fb.textContent = "✓ 正确！";
+            fb.className = "feedback ok";
+          } else {
+            fb.textContent = "✗ 再想想。提示：回到对应小节看一眼。";
+            fb.className = "feedback bad";
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

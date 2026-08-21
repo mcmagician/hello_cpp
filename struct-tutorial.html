@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSP-J · 结构体 struct 入门教程</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --card: #fffdf9;
+      --ink: #1c2430;
+      --muted: #5c6b7a;
+      --line: #d9d0c3;
+      --accent: #1f6f5b;
+      --accent-soft: #e5f2ed;
+      --warn: #9a4d1c;
+      --warn-soft: #f8ebe1;
+      --code-bg: #1e2430;
+      --code-fg: #e8eef5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 70% 40% at 10% 0%, #e8efe8 0%, transparent 55%),
+        radial-gradient(ellipse 50% 35% at 100% 10%, #f0e8dc 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      gap: 0;
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.4rem 1rem;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 249, 0.92);
+      backdrop-filter: blur(6px);
+    }
+
+    nav .brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.35rem;
+      color: var(--accent);
+    }
+
+    nav .sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    nav a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      padding: 0.35rem 0.45rem;
+      border-radius: 6px;
+      margin-bottom: 0.15rem;
+    }
+
+    nav a:hover { background: var(--accent-soft); color: var(--accent); }
+
+    main { padding: 1.75rem 2rem 3rem; }
+
+    h1 {
+      font-size: 1.7rem;
+      margin: 0 0 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      color: var(--muted);
+      margin: 0 0 1.5rem;
+      max-width: 42em;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem 1.4rem;
+      margin-bottom: 1.1rem;
+      scroll-margin-top: 1rem;
+    }
+
+    h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+
+    h3 {
+      margin: 1.1rem 0 0.45rem;
+      font-size: 1rem;
+    }
+
+    p { margin: 0.55rem 0; }
+
+    ul, ol { margin: 0.4rem 0 0.6rem; padding-left: 1.3rem; }
+    li { margin: 0.25rem 0; }
+
+    code, .mono {
+      font-family: ui-monospace, Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    p code, li code, td code {
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 0.05em 0.35em;
+      border-radius: 4px;
+    }
+
+    pre {
+      margin: 0.7rem 0;
+      padding: 0.9rem 1rem;
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    pre .c { color: #8b9bb0; }
+    pre .k { color: #7ec8a3; }
+    pre .t { color: #9ecbff; }
+    pre .s { color: #e8b86d; }
+    pre .n { color: #d4a5ff; }
+
+    .tip, .exam, .pitfall {
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      margin: 0.8rem 0;
+      font-size: 0.92rem;
+    }
+
+    .tip { background: var(--accent-soft); border-left: 4px solid var(--accent); }
+    .exam { background: #eef3f8; border-left: 4px solid #3d6f99; }
+    .pitfall { background: var(--warn-soft); border-left: 4px solid var(--warn); }
+
+    .tip strong, .exam strong, .pitfall strong { display: block; margin-bottom: 0.2rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 0.6rem 0;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+    }
+
+    th { background: #f0ebe3; }
+
+    .quiz {
+      background: #faf8f4;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin-top: 0.8rem;
+    }
+
+    .quiz button {
+      margin: 0.35rem 0.35rem 0 0;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+
+    .quiz button:hover { border-color: var(--accent); color: var(--accent); }
+
+    .quiz .feedback {
+      margin-top: 0.55rem;
+      font-size: 0.9rem;
+      min-height: 1.3em;
+      color: var(--muted);
+    }
+
+    .quiz .feedback.ok { color: var(--accent); }
+    .quiz .feedback.bad { color: var(--warn); }
+
+    .playground {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 0.6rem;
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      nav {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      nav a { display: inline-block; }
+      main { padding: 1.2rem; }
+      .playground { grid-template-columns: 1fr; }
+    }
+
+    .playground label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .playground input, .playground select {
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .playground .out {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      min-height: 8rem;
+    }
+
+    .playground button.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 0.5rem 0 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand">struct 结构体</div>
+      <div class="sub">CSP-J 应试速成</div>
+      <a href="#what">1. 是什么</a>
+      <a href="#define">2. 怎么定义</a>
+      <a href="#member">3. 访问成员</a>
+      <a href="#array">4. 结构体数组</a>
+      <a href="#func">5. 与函数配合</a>
+      <a href="#sort">6. 排序常考写法</a>
+      <a href="#pitfalls">7. 易错点</a>
+      <a href="#exam">8. 考试小抄</a>
+      <a href="#demo">9. 互动练习</a>
+      <a href="#quiz">10. 自测题</a>
+    </nav>
+
+    <main>
+      <h1>CSP-J · 结构体 struct 入门教程</h1>
+      <p class="lead">
+        结构体把「好几类相关数据」打包成一个类型。CSP-J 机考里常用来存学生、坐标、题目记录等。
+        学会定义、访问、数组、简单排序，就够应付大多数题。
+      </p>
+
+      <section id="what">
+        <h2>1. 结构体是什么？</h2>
+        <p>普通变量一次只能存一种类型；结构体可以一次存多种类型。</p>
+        <table>
+          <tr><th>场景</th><th>不用结构体</th><th>用结构体</th></tr>
+          <tr>
+            <td>存 3 个学生的姓名和成绩</td>
+            <td><code>name[3]</code> + <code>score[3]</code> 两个数组，靠下标对应</td>
+            <td>一个 <code>Student stu[3]</code>，每人信息绑在一起</td>
+          </tr>
+          <tr>
+            <td>平面坐标</td>
+            <td><code>x</code>、<code>y</code> 两个变量</td>
+            <td><code>Point p;</code>，里面有 <code>p.x</code>、<code>p.y</code></td>
+          </tr>
+        </table>
+        <div class="tip">
+          <strong>应试直觉</strong>
+          题目里出现「每个人有多个属性」「每条记录有多项数据」→ 优先想结构体。
+        </div>
+      </section>
+
+      <section id="define">
+        <h2>2. 怎么定义？</h2>
+        <p>最常见写法（推荐背下来）：</p>
+<pre><span class="k">struct</span> <span class="t">Student</span> {
+    <span class="t">string</span> name;   <span class="c">// 姓名</span>
+    <span class="t">int</span> score;     <span class="c">// 成绩</span>
+};                 <span class="c">// 别忘了分号！</span>
+
+<span class="t">Student</span> a;         <span class="c">// 定义一个学生变量</span>
+<span class="t">Student</span> b = {<span class="s">"Amy"</span>, <span class="n">95</span>};  <span class="c">// 定义并初始化</span></pre>
+
+        <h3>成员可以是各种类型</h3>
+<pre><span class="k">struct</span> <span class="t">Point</span> {
+    <span class="t">int</span> x, y;
+};
+
+<span class="k">struct</span> <span class="t">Book</span> {
+    <span class="t">string</span> title;
+    <span class="t">double</span> price;
+    <span class="t">int</span> pages;
+};</pre>
+
+        <div class="pitfall">
+          <strong>易错：结尾分号</strong>
+          <code>struct ... { ... };</code> 最后那个分号漏了，编译直接报错。考试时写完先检查！
+        </div>
+      </section>
+
+      <section id="member">
+        <h2>3. 访问成员：用点号 <code>.</code></h2>
+<pre><span class="t">Student</span> s;
+s.name = <span class="s">"Bob"</span>;
+s.score = <span class="n">88</span>;
+cout &lt;&lt; s.name &lt;&lt; <span class="s">" "</span> &lt;&lt; s.score &lt;&lt; endl;</pre>
+
+        <p>读入也很常见：</p>
+<pre><span class="t">Student</span> s;
+cin &gt;&gt; s.name &gt;&gt; s.score;</pre>
+
+        <div class="exam">
+          <strong>初赛可能问</strong>
+          「访问结构体成员用什么运算符？」→ 答案是 <strong>点运算符 <code>.</code></strong>
+          （指针访问才是 <code>-&gt;</code>，CSP-J 机考少用，知道即可。）
+        </div>
+      </section>
+
+      <section id="array">
+        <h2>4. 结构体数组（机考超常见）</h2>
+<pre><span class="t">Student</span> stu[<span class="n">100</span>];   <span class="c">// 最多 100 个学生</span>
+<span class="t">int</span> n;
+cin &gt;&gt; n;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++) {
+    cin &gt;&gt; stu[i].name &gt;&gt; stu[i].score;
+}
+<span class="c">// 找最高分</span>
+<span class="t">int</span> best = <span class="n">0</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt; n; i++) {
+    <span class="k">if</span> (stu[i].score &gt; stu[best].score)
+        best = i;
+}
+cout &lt;&lt; stu[best].name &lt;&lt; endl;</pre>
+
+        <div class="tip">
+          <strong>记忆口诀</strong>
+          数组下标在前，成员名在后：<code>stu[i].score</code>，不是 <code>stu.score[i]</code>。
+        </div>
+      </section>
+
+      <section id="func">
+        <h2>5. 和函数一起用</h2>
+        <p>可以当参数传递；想在函数里改它的内容，用<strong>引用</strong>（比指针更常考、更好写）：</p>
+<pre><span class="k">void</span> <span class="t">addBonus</span>(<span class="t">Student</span> &amp;s, <span class="t">int</span> bonus) {
+    s.score += bonus;   <span class="c">// 改的是原来的学生</span>
+}
+
+<span class="t">Student</span> a = {<span class="s">"Amy"</span>, <span class="n">90</span>};
+addBonus(a, <span class="n">5</span>);        <span class="c">// a.score 变成 95</span></pre>
+
+        <p>只读、不修改，可以传值，或传 <code>const Student &amp;</code>（进阶，了解即可）。</p>
+      </section>
+
+      <section id="sort">
+        <h2>6. 排序常考写法</h2>
+        <p>按成绩从高到低排序（CSP-J 可用 <code>sort</code> + 自定义比较）：</p>
+<pre><span class="k">#include</span> &lt;algorithm&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">bool</span> <span class="t">cmp</span>(<span class="t">Student</span> a, <span class="t">Student</span> b) {
+    <span class="k">return</span> a.score &gt; b.score;  <span class="c">// 分数高的排前面</span>
+}
+
+<span class="c">// ...</span>
+sort(stu, stu + n, cmp);</pre>
+
+        <p>多关键字也很常见：先比分数，分数相同再比姓名字典序：</p>
+<pre><span class="k">bool</span> <span class="t">cmp</span>(<span class="t">Student</span> a, <span class="t">Student</span> b) {
+    <span class="k">if</span> (a.score != b.score)
+        <span class="k">return</span> a.score &gt; b.score;
+    <span class="k">return</span> a.name &lt; b.name;
+}</pre>
+
+        <div class="exam">
+          <strong>机考提醒</strong>
+          记得 <code>#include &lt;algorithm&gt;</code>；比较函数返回 <code>true</code> 表示「a 应该排在 b 前面」。
+        </div>
+      </section>
+
+      <section id="pitfalls">
+        <h2>7. 易错点速查</h2>
+        <ol>
+          <li>定义结构体后<strong>漏分号</strong>。</li>
+          <li>写成 <code>stu.score[i]</code>，正确是 <code>stu[i].score</code>。</li>
+          <li>两个结构体不能直接用 <code>&gt;</code> 比较整份，要比较具体成员，或写 <code>cmp</code>。</li>
+          <li>结构体可以互相嵌套，但 CSP-J 一般一层就够，别自己搞复杂。</li>
+          <li>数组开太大可能爆栈；人数上限看清题目，常见 <code>stu[1005]</code> 一类。</li>
+        </ol>
+      </section>
+
+      <section id="exam">
+        <h2>8. 考试小抄（临考看这页）</h2>
+        <pre><span class="c">// 模板：读入 n 个学生，按分数降序输出姓名</span>
+<span class="k">#include</span> &lt;iostream&gt;
+<span class="k">#include</span> &lt;string&gt;
+<span class="k">#include</span> &lt;algorithm&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">struct</span> <span class="t">Student</span> {
+    <span class="t">string</span> name;
+    <span class="t">int</span> score;
+};
+
+<span class="k">bool</span> <span class="t">cmp</span>(<span class="t">Student</span> a, <span class="t">Student</span> b) {
+    <span class="k">return</span> a.score &gt; b.score;
+}
+
+<span class="t">int</span> <span class="t">main</span>() {
+    <span class="t">int</span> n;
+    cin &gt;&gt; n;
+    <span class="t">Student</span> stu[<span class="n">105</span>];
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)
+        cin &gt;&gt; stu[i].name &gt;&gt; stu[i].score;
+    sort(stu, stu + n, cmp);
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)
+        cout &lt;&lt; stu[i].name &lt;&lt; <span class="s">" "</span> &lt;&lt; stu[i].score &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+        <div class="tip">
+          <strong>笔试可能考</strong>
+          定义语法、成员访问、结构体数组含义、点号与箭头区别。机考重点是<strong>能写、能排、能找最值</strong>。
+        </div>
+      </section>
+
+      <section id="demo">
+        <h2>9. 互动：组装一个 Student</h2>
+        <p>填写后点按钮，看等价的 C++ 代码和输出（帮助建立直觉）。</p>
+        <div class="playground">
+          <div>
+            <label>姓名 name</label>
+            <input id="p-name" value="Amy" />
+            <label>成绩 score</label>
+            <input id="p-score" type="number" value="95" />
+            <label>再加一名同学（可选对比）</label>
+            <input id="p-name2" value="Bob" />
+            <input id="p-score2" type="number" value="88" />
+            <button class="primary" id="p-run" type="button">生成代码并比较谁分高</button>
+          </div>
+          <div class="out" id="p-out">点按钮查看结果…</div>
+        </div>
+      </section>
+
+      <section id="quiz">
+        <h2>10. 三道自测题</h2>
+
+        <div class="quiz" data-answer="B">
+          <p><strong>Q1.</strong> 访问结构体变量 <code>s</code> 的成员 <code>score</code>，正确写法是？</p>
+          <button type="button" data-choice="A">s-&gt;score</button>
+          <button type="button" data-choice="B">s.score</button>
+          <button type="button" data-choice="C">s::score</button>
+          <button type="button" data-choice="D">score.s</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="C">
+          <p><strong>Q2.</strong> 结构体数组中第 i 个学生的姓名，正确是？</p>
+          <button type="button" data-choice="A">stu.name[i]</button>
+          <button type="button" data-choice="B">stu.i.name</button>
+          <button type="button" data-choice="C">stu[i].name</button>
+          <button type="button" data-choice="D">name[stu[i]]</button>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="quiz" data-answer="A">
+          <p><strong>Q3.</strong> 下面哪一项最容易导致编译错误？</p>
+          <button type="button" data-choice="A">struct A { int x; } 后面漏写分号</button>
+          <button type="button" data-choice="B">使用 s.x 访问成员</button>
+          <button type="button" data-choice="C">定义 Student stu[10];</button>
+          <button type="button" data-choice="D">cin &gt;&gt; stu[0].score;</button>
+          <div class="feedback"></div>
+        </div>
+      </section>
+
+      <footer>面向 CSP-J · 结构体入门 · 本地打开即可学习</footer>
+    </main>
+  </div>
+
+  <script>
+    // playground
+    document.getElementById("p-run").addEventListener("click", () => {
+      const n1 = document.getElementById("p-name").value || "Amy";
+      const s1 = Number(document.getElementById("p-score").value) || 0;
+      const n2 = document.getElementById("p-name2").value || "Bob";
+      const s2 = Number(document.getElementById("p-score2").value) || 0;
+      const better = s1 >= s2 ? n1 : n2;
+      document.getElementById("p-out").textContent =
+`struct Student {
+    string name;
+    int score;
+};
+
+Student a = {"${n1}", ${s1}};
+Student b = {"${n2}", ${s2}};
+
+// a.name = ${n1}, a.score = ${s1}
+// b.name = ${n2}, b.score = ${s2}
+// 分数更高（或相等取前者）：${better}`;
+    });
+
+    // quiz
+    document.querySelectorAll(".quiz").forEach((box) => {
+      const ans = box.dataset.answer;
+      const fb = box.querySelector(".feedback");
+      box.querySelectorAll("button[data-choice]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const choice = btn.dataset.choice;
+          if (choice === ans) {
+            fb.textContent = "✓ 正确！";
+            fb.className = "feedback ok";
+          } else {
+            fb.textContent = "✗ 再想想。提示：看本节对应知识点。";
+            fb.className = "feedback bad";
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
