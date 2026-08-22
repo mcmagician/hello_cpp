@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSP-J · 插入排序动画演示</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --card: #fffdf9;
+      --ink: #1c2430;
+      --muted: #5c6b7a;
+      --line: #d9d0c3;
+      --accent: #1f6f5b;
+      --accent-soft: #e5f2ed;
+      --code-bg: #1e2430;
+      --code-fg: #e8eef5;
+      --bar: #3d6f99;
+      --compare: #c98a1a;
+      --swap: #a9443b;
+      --placed: #2b9981;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 70% 40% at 10% 0%, #e8efe8 0%, transparent 55%),
+        radial-gradient(ellipse 50% 35% at 100% 10%, #f0e8dc 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      gap: 0;
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.4rem 1rem;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 249, 0.92);
+      backdrop-filter: blur(6px);
+    }
+
+    nav .brand { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.35rem; color: var(--accent); }
+    nav .sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1rem; }
+    nav a {
+      display: block; color: var(--muted); text-decoration: none; font-size: 0.86rem;
+      padding: 0.35rem 0.45rem; border-radius: 6px; margin-bottom: 0.15rem;
+    }
+    nav a:hover { background: var(--accent-soft); color: var(--accent); }
+
+    main { padding: 1.75rem 2rem 3rem; }
+    h1 { font-size: 1.7rem; margin: 0 0 0.4rem; letter-spacing: 0.01em; }
+    .lead { color: var(--muted); margin: 0 0 1.5rem; max-width: 44em; }
+    section {
+      background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+      padding: 1.25rem 1.4rem 1.4rem; margin-bottom: 1.1rem; scroll-margin-top: 1rem;
+    }
+    h2 { margin: 0 0 0.75rem; font-size: 1.15rem; color: var(--accent); }
+    h3 { margin: 1.1rem 0 0.45rem; font-size: 1rem; }
+    p { margin: 0.55rem 0; }
+    code {
+      font-family: "SF Mono", "JetBrains Mono", Consolas, monospace;
+      background: var(--accent-soft); color: var(--accent); padding: 0.1em 0.4em; border-radius: 5px; font-size: 0.9em;
+    }
+
+    /* —— 演示区 —— */
+    .stage {
+      display: grid; grid-template-columns: 1fr 280px; gap: 1.2rem; align-items: start;
+    }
+    @media (max-width: 820px) { .stage { grid-template-columns: 1fr; } nav { display: none; } }
+
+    .panel {
+      background: #fffdf5; border: 1px solid var(--line); border-radius: 10px; padding: 1rem;
+    }
+
+    .bars {
+      display: flex; align-items: flex-end; gap: 8px; height: 300px;
+      padding: 0.6rem 1rem 0; border-bottom: 2px solid var(--line);
+    }
+    .bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; }
+    .bar {
+      width: 100%; background: var(--bar); border-radius: 5px 5px 0 0;
+      transition: height 0.18s ease, background 0.18s ease;
+      display: flex; align-items: flex-start; justify-content: center;
+      color: #fff; font-size: 0.72rem; font-weight: 700; padding-top: 4px; min-height: 4px;
+    }
+    .bar .idx {
+      position: absolute; font-size: 0.7rem; color: var(--muted); margin-top: 26px;
+    }
+    .bar-col { position: relative; }
+
+    .bar.cmp { background: var(--compare) !important; box-shadow: 0 0 0 3px rgba(201,138,26,0.25); }
+    .bar.swap { background: var(--swap) !important; }
+    .bar.placed { background: var(--placed) !important; }
+    .bar.cursor { box-shadow: 0 0 0 3px var(--accent); }
+
+    .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.8rem; font-size: 0.82rem; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+    .dot.cmp { background: var(--compare); } .dot.swap { background: var(--swap); }
+    .dot.placed { background: var(--placed); } .dot.cursor { background: var(--accent); }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 1rem; }
+    button {
+      font: inherit; cursor: pointer; border: 1px solid var(--accent); background: var(--accent);
+      color: #fff; padding: 0.5rem 1rem; border-radius: 8px; transition: opacity 0.15s;
+    }
+    button.ghost { background: transparent; color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .speed { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    input[type=range] { accent-color: var(--accent); }
+
+    .status {
+      margin-top: 0.9rem; padding: 0.7rem 0.9rem; background: var(--accent-soft);
+      border-radius: 8px; font-size: 0.92rem; min-height: 2.6em; color: var(--ink);
+    }
+    .status b { color: var(--accent); }
+
+    /* —— 伪代码 —— */
+pre {
+  background: var(--code-bg); color: var(--code-fg); padding: 0.7rem 0.8rem; border-radius: 8px;
+  font-size: 0.72rem; line-height: 1.6; margin: 0; white-space: pre; overflow-x: auto;
+}
+    pre .line { display: block; padding: 0 0.4rem; border-radius: 4px; }
+    pre .line.active { background: rgba(43,153,129,0.28); }
+    pre .c-comment { color: #7f8fa0; }
+    pre .c-kw { color: #9ccfd0; }
+    pre .c-fn { color: #e8b84b; }
+
+    table { border-collapse: collapse; width: 100%; margin-top: 0.6rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; }
+    th { background: var(--accent-soft); color: var(--accent); }
+    .chip { display: inline-block; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 0.15em 0.7em; font-size: 0.8rem; font-weight: 600; }
+
+    footer { color: var(--muted); font-size: 0.82rem; text-align: center; padding: 1.5rem 1rem 0.5rem; }
+    ol.tut { padding-left: 1.3em; }
+    ol.tut li { margin: 0.4rem 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand">CSP-J 算法</div>
+      <div class="sub">入门 · 可视化演示</div>
+      <a href="#what">什么是插入排序</a>
+      <a href="#demo">动画演示</a>
+      <a href="#how">它是怎么做的</a>
+      <a href="#code">伪代码</a>
+      <a href="#complex">复杂度</a>
+      <a href="#when">适用场景</a>
+    </nav>
+
+    <main>
+      <h1>插入排序 Insertion Sort</h1>
+      <p class="lead">
+        就像打牌时整理手里的牌：每拿到一张新牌，就从左到右找到它该放的位置，插入进去。
+        下面用「扑克牌排序」的直觉，配动画带你一步步看懂。
+      </p>
+
+      <section id="what">
+        <h2>什么是插入排序</h2>
+        <p>
+          插入排序（Insertion Sort）是一种简单的排序算法。它把工作区分成「已排序」和「未排序」两部分：
+        </p>
+        <ol class="tut">
+          <li>默认第 1 个元素已经排好序（手里第一张牌）。</li>
+          <li>依次取出下一个未排序的元素（下一张牌）。</li>
+          <li>把它和前面已排序的元素从右往左比较，找到合适位置插入。</li>
+          <li>重复直到所有元素都排好。</li>
+        </ol>
+        <p>因为每次都是「插入」到已排序序列的正确位置，所以叫插入排序。</p>
+      </section>
+
+      <section id="demo">
+        <h2>动画演示</h2>
+        <div class="stage">
+          <div class="panel">
+            <div class="bars" id="bars"></div>
+            <div class="legend">
+              <span><i class="dot cursor"></i>当前要插入的牌</span>
+              <span><i class="dot cmp"></i>正在比较</span>
+              <span><i class="dot swap"></i>向后移动</span>
+              <span><i class="dot placed"></i>已归位</span>
+            </div>
+            <div class="status" id="status">点击「开始演示」，观察如何把元素插入到正确位置。</div>
+            <div class="controls">
+              <button id="playBtn" onclick="togglePlay()">开始演示</button>
+              <button id="stepBtn" class="ghost" onclick="onStepClick()">单步执行</button>
+              <button id="freshBtn" class="ghost" onclick="freshArray()">重新打乱</button>
+              <div class="speed">
+                速度
+                <input type="range" id="speed" min="0" max="100" value="55" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3 style="margin-top:0;">伪代码</h3>
+            <pre id="code"><span class="line" data-l="0"><span class="c-kw">for</span> i = 1 <span class="c-kw">to</span> n-1:</span>
+<span class="line" data-l="1">    key = a[i]</span>
+<span class="line" data-l="2">    j = i - 1</span>
+<span class="line" data-l="3">    <span class="c-kw">while</span> j >= 0 <span class="c-kw">and</span> a[j] &gt; key:</span>
+<span class="line" data-l="4">        a[j+1] = a[j]   <span class="c-comment">// 后移</span></span>
+<span class="line" data-l="5">        j -= 1</span>
+<span class="line" data-l="6">    a[j+1] = key        <span class="c-comment">// 插入</span></span></pre>
+            <div style="margin-top:0.9rem; font-size:0.85rem; color:var(--muted);">
+              第 <b id="lineNum" style="color:var(--accent);">—</b> 行正在执行
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how">
+        <h2>它是怎么做的（以 [5, 2, 4, 6, 1, 3] 为例）</h2>
+        <p>橙色竖条是当前抓到的牌，我们从右往左把它插进已排序的队列：</p>
+        <table>
+          <thead><tr><th>步骤</th><th>数组状态</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>初始</td><td>5 2 4 6 1 3</td><td>只有 <code>5</code> 算已排序</td></tr>
+            <tr><td>取 2</td><td>2 5 4 6 1 3</td><td>2 &lt; 5，把 5 后移，2 插到最前</td></tr>
+            <tr><td>取 4</td><td>2 4 5 6 1 3</td><td>4 &lt; 5 后移，4 &gt; 2，插在 2 后</td></tr>
+            <tr><td>取 6</td><td>2 4 5 6 1 3</td><td>6 &gt; 5，不用动，位置不变</td></tr>
+            <tr><td>取 1</td><td>1 2 4 5 6 3</td><td>1 比前面都小，一路移到最前</td></tr>
+            <tr><td>取 3</td><td>1 2 3 4 5 6</td><td>3 插在 2 和 4 之间，完成</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="complex">
+        <h2>复杂度</h2>
+        <table>
+          <thead><tr><th>情况</th><th>时间</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>最好</td><td><span class="chip">O(n)</span></td><td>数组已有序，每次比较一次就插入</td></tr>
+            <tr><td>最坏</td><td><span class="chip">O(n²)</span></td><td>数组逆序，每次都要移到最前</td></tr>
+            <tr><td>平均</td><td><span class="chip">O(n²)</span></td><td>双重循环</td></tr>
+            <tr><td>空间</td><td><span class="chip">O(1)</span></td><td>原地排序，只需常数额外空间</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="when">
+        <h2>什么时候用</h2>
+        <p>
+          <span class="chip">稳定排序</span> 相同元素不改变先后顺序。
+        </p>
+        <p>
+          数据量小、或基本有序时非常高效，也常作为快排、归并排序在小区间上的子排序（如 std::sort 的 introsort）。
+          数据量大、完全无序时不推荐。
+        </p>
+      </section>
+
+      <footer>面向 CSP-J · 插入排序入门 · 本地用浏览器打开即可学习</footer>
+    </main>
+  </div>
+
+  <script>
+    const N = 16;
+    let arr = [];
+    let barsEl, statusEl, codeEl;
+    let animating = false;
+    let stepping = false;         // 单步模式标记
+    let stepResolve = null;       // 单步模式下，等待恢复的 sleep 回调
+    let canceled = false;         // 中止标记：打乱/停止时让进行中的排序尽快退出
+    let timer = null;
+
+    function delay() {
+      // 滑条越大越快
+      return 620 - Number(document.getElementById("speed").value) * 5.6;
+    }
+
+    function freshArray() {
+      stopPlay();
+      arr = [];
+      while (arr.length < N) {
+        const v = Math.floor(Math.random() * 99) + 1;
+        if (!arr.includes(v)) arr.push(v);
+      }
+      renderBars(arr, [], -1);
+      setStatus('数组已重新打乱，点击「开始演示」观察排序过程。');
+      highlight(-1);
+    }
+
+    function renderBars(data, cls = {}, cursor = -1) {
+      const max = Math.max(...data);
+      barsEl.innerHTML = "";
+      for (let i = 0; i < data.length; i++) {
+        const col = document.createElement("div");
+        col.className = "bar-col";
+        const bar = document.createElement("div");
+        bar.className = "bar" + (cls.cmp && cls.cmp.has(i) ? " cmp" : "") +
+                        (cls.swap && cls.swap.has(i) ? " swap" : "") +
+                        (cls.placed && cls.placed.has(i) ? " placed" : "") +
+                        (i === cursor ? " cursor" : "");
+        bar.style.height = (8 + (data[i] / max) * 250) + "px";
+        bar.textContent = data[i];
+        col.appendChild(bar);
+        barsEl.appendChild(col);
+      }
+    }
+
+    function highlight(line) {
+      codeEl.querySelectorAll(".line").forEach(l => l.classList.remove("active"));
+      if (line < 0) return;
+      const el = codeEl.querySelector('.line[data-l="' + line + '"]');
+      if (el) el.classList.add("active");
+      document.getElementById("lineNum").textContent = line;
+    }
+
+    function setStatus(html) { statusEl.innerHTML = html; }
+
+    function sleep(ms) {
+      return new Promise(res => {
+        if (canceled) { res(); return; }    // 被打断：立即结束
+        if (stepping) {            // 单步模式：暂停，等用户再点一次按钮
+          stepResolve = res;
+          return;
+        }
+        timer = setTimeout(res, ms);
+      });
+    }
+
+    function stopPlay() {
+      canceled = true;
+      animating = false;
+      stepping = false;
+      stepResolve = null;
+      if (timer) { clearTimeout(timer); timer = null; }
+      document.getElementById("playBtn").textContent = "开始演示";
+      document.getElementById("playBtn").disabled = false;
+      document.getElementById("stepBtn").disabled = false;
+    }
+
+    async function togglePlay() {
+      if (animating) { stopPlay(); return; }
+      canceled = false;         // 开始一场新的排序
+      animating = true;
+      stepping = false;
+      document.getElementById("playBtn").textContent = "暂停";
+      document.getElementById("stepBtn").disabled = true;
+      await insertionSort();
+      animating = false;
+      document.getElementById("playBtn").textContent = "重新演示";
+      document.getElementById("stepBtn").disabled = false;
+    }
+
+    // 单步：执行一遍排序，但每步之间暂停等待用户
+    function onStepClick() {
+      if (stepping) {            // 正在单步：恢复一次 sleep，走一步
+        if (stepResolve) { const r = stepResolve; stepResolve = null; r(); }
+        return;
+      }
+      stepOnce();
+    }
+
+    async function stepOnce() {
+      if (animating) return;
+      canceled = false;         // 开始一场新的单步排序
+      stepping = true;          // 单步模式：每次 sleep 暂停，等用户再点一次
+      animating = true;
+      stepResolve = null;
+      document.getElementById("playBtn").disabled = true;
+      await insertionSort(true);
+      animating = false;
+      stepping = false;
+      stepResolve = null;
+      document.getElementById("playBtn").disabled = false;
+      document.getElementById("playBtn").textContent = "开始演示";
+    }
+
+    async function insertionSort(singleStep) {
+      const a = arr.slice();
+      const placed = new Set([0]);
+      for (let i = 1; i < a.length; i++) {
+        if (canceled) { break; }   // 被打断：中途退出排序
+        const key = a[i];
+        let j = i - 1;
+        highlight(1);
+        setStatus(`取出第 ${i} 张牌 <b>${key}</b>，准备插入前面已排序的队列。`);
+        await sleep(delay());
+        if (!singleStep) highlight(2);
+        await sleep(delay());
+
+        while (j >= 0 && a[j] > key) {
+          highlight(3);
+          setStatus(`比较：<b>${a[j]}</b> &gt; <b>${key}</b>，把 <b>${a[j]}</b> 向后挪一位。`);
+          highlight(4);
+          const swap = new Set([j, j + 1]);
+          renderBars(a, { cmp: new Set([j]), swap }, -1);
+          await sleep(delay());
+          a[j + 1] = a[j];
+          a[j] = key;
+          placed.add(j + 1);
+          renderBars(a, { placed }, -1);
+          j -= 1;
+          await sleep(delay());
+        }
+        // 归位
+        a[j + 1] = key;
+        highlight(6);
+        setStatus(`<b>${key}</b> 已插入到位置 ${j + 1}，前面全部有序。`);
+        placed.add(j + 1);
+        renderBars(a, { placed }, -1);
+        await sleep(delay());
+      }
+      if (canceled) { return; }   // 被打断：不在收尾处写「完成」状态
+      highlight(-1);
+      renderBars(a, {}, -1);
+      setStatus('✅ 排序完成！数组已成为 <b>升序</b>。插入排序共做了 n-1 轮插入。');
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      barsEl = document.getElementById("bars");
+      statusEl = document.getElementById("status");
+      codeEl = document.getElementById("code");
+      freshArray();
+    });
+  </script>
+</body>
+</html>
