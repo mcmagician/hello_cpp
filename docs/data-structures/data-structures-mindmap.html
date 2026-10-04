@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数据结构 · 把名词连起来</title>
+<style>
+:root{--bg:#f5f6f3;--paper:#fff;--ink:#22302e;--muted:#64736e;--line:#dce3de;--accent:#216551;--soft:#eaf3ee;--active:#cbe5d6}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 "Microsoft YaHei","Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:6px 11px}button:hover{background:var(--soft)}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button.primary{background:var(--accent);color:white;border-color:var(--accent)}h1{font-size:24px;margin:0 0 5px;line-height:1.4}h2{font-size:18px;margin:0 0 10px}h3{font-size:15px;margin:20px 0 7px}p{margin:6px 0 12px}a{color:var(--accent)}header{padding:25px 28px 18px;border-bottom:1px solid var(--line);background:var(--paper)}.eyebrow{font-size:12px;letter-spacing:2px;color:var(--accent);margin-bottom:7px}.lede{color:var(--muted);margin:0;max-width:900px}.keyline{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:16px}.keyline b{padding:4px 10px;background:var(--soft);border-radius:5px}.keyline span{color:var(--muted);font-size:13px}.shell{padding:18px 24px 25px;max-width:1700px;margin:auto}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}.search{position:relative;flex:1;min-width:200px;max-width:370px}.search input{padding:8px 12px;width:100%;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}#results{position:absolute;top:44px;left:0;right:0;z-index:9;background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:6px;max-height:300px;overflow:auto}#results[hidden]{display:none}#results button{display:block;text-align:left;width:100%;border:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px}.map-panel{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);min-width:0}.map-head{display:flex;justify-content:space-between;gap:12px;padding:11px 15px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px}#viewport{height:580px;overflow:hidden;touch-action:none;cursor:grab;position:relative}#viewport.dragging{cursor:grabbing}#map{width:100%;height:100%;display:block}svg .edge{stroke:var(--line);stroke-width:1.5;fill:none}svg .edge-label{fill:var(--muted);font-size:10px}svg .node rect{fill:var(--paper);stroke:var(--line);stroke-width:1.2}svg .node text{fill:var(--ink);font:13px "Microsoft YaHei",sans-serif}svg .node .small{font-size:11px;fill:var(--muted)}svg .node.selected rect{fill:var(--soft);stroke:var(--accent);stroke-width:2}svg .node.match rect{stroke:var(--accent)}svg .node.root rect{fill:var(--accent);stroke:var(--accent)}svg .node.root text{fill:white}svg .node{cursor:pointer}svg .node:focus{outline:none}svg .node:focus rect{stroke:var(--accent);stroke-width:3}.map-foot{border-top:1px solid var(--line);display:flex;gap:5px;padding:9px 12px;align-items:center}.map-foot button{padding:3px 10px}.map-foot .spacer{flex:1}.map-foot small{color:var(--muted)}aside{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px;min-width:0}.label{font-size:12px;color:var(--accent);margin-bottom:6px}.example{background:var(--bg);padding:12px;border-radius:6px;font-family:"Consolas","Microsoft YaHei",monospace;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.note{border-left:3px solid var(--accent);padding-left:10px;color:var(--muted);font-size:13px}.related{display:flex;flex-wrap:wrap;gap:6px}.related button{font-size:12px;padding:4px 8px}.path{color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:13px;margin-top:17px}.bottom{margin-top:20px;display:grid;grid-template-columns:1.3fr 1fr;gap:26px}.comparison{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px}.comparison header{padding:0;border:0}.mode{display:flex;gap:6px;margin:12px 0}.mode button[aria-pressed=true]{background:var(--soft);border-color:var(--accent)}.memory{display:flex;align-items:center;gap:0;overflow-x:auto;padding:12px 0;min-height:85px}.cell{min-width:70px;text-align:center;border:1px solid var(--line);padding:8px 10px}.cell small{display:block;color:var(--muted);font-size:10px}.memory.linked{gap:10px}.memory .arrow{color:var(--accent)}.cell.changed{background:var(--soft);border-color:var(--accent)}.lesson{padding:4px 0}.steps{display:flex;flex-wrap:wrap;gap:6px}.steps button{font-size:13px}.source{font-size:12px;color:var(--muted);margin-top:17px}.quiz{border-top:1px solid var(--line);margin-top:18px;padding-top:16px}.quiz button{margin:4px 5px 4px 0}#feedback{min-height:48px;color:var(--accent);font-size:13px}.tip{color:var(--muted);font-size:13px}footer{padding:16px 0 0;font-size:12px;color:var(--muted)}@media(max-width:1050px){.layout{grid-template-columns:minmax(0,1fr) 290px}.map-head span:last-child{display:none}}@media(max-width:760px){header{padding:20px 16px}.shell{padding:14px 12px}.layout,.bottom{grid-template-columns:1fr}#viewport{height:440px}aside{min-height:0}.toolbar button{font-size:12px}.bottom{gap:16px}.map-foot small{display:none}}
+@media print{.toolbar,.map-foot,.quiz,.mode,.demo-actions{display:none}#viewport{height:650px}.shell{padding:0}.layout{grid-template-columns:1fr}aside{break-inside:avoid}.bottom{display:block}.source{color:black}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">DATA STRUCTURES / 学习地图</div><h1>把数据结构的名词连起来</h1><p class="lede">先分清“元素之间是什么关系”，再看“在内存中怎么放”，最后学习“能做哪些操作、效率如何”。</p><div class="keyline"><b>逻辑结构</b><span>关系</span><span>→</span><b>存储结构</b><span>实现</span><span>→</span><b>操作与算法</b><span>处理方法</span><span>→</span><b>复杂度</b><span>效率</span></div></header>
+<main class="shell">
+<div class="toolbar"><div class="search"><input id="search" type="search" placeholder="搜索名词，例如：线性表、堆、散列" aria-label="搜索数据结构名词"><div id="results" hidden></div></div><button id="linear" class="primary">先看线性表</button><button id="all">全部展开</button><button id="collapse">收起到主干</button><button id="reset">回到总览</button></div>
+<div class="layout"><section class="map-panel" aria-label="数据结构思维导图"><div class="map-head"><span>点击名词看解释 · 点击 + / − 展开收起</span><span>连线文字表示关系，分支不代表同一分类层级</span></div><div id="viewport"><svg id="map" xmlns="http://www.w3.org/2000/svg" aria-label="可交互的数据结构导图"><g id="scene"></g></svg></div><div class="map-foot"><button id="minus" aria-label="缩小">−</button><span id="zoom">100%</span><button id="plus" aria-label="放大">+</button><button id="fit">适应画面</button><span class="spacer"></span><small>拖拽平移 · Ctrl + 滚轮缩放</small></div></section><aside id="detail" aria-live="polite"></aside></div>
+<div class="bottom"><section class="comparison"><h2>同一个线性表，两种存法</h2><p class="tip">A、B、C 的逻辑顺序不变；切换存储方式，观察内存布局。地址仅为示意。</p><div class="mode"><button id="seq-mode" aria-pressed="true">顺序表：连续存储</button><button id="link-mode" aria-pressed="false">链表：靠链接连接</button></div><div id="memory" class="memory" aria-live="polite"></div><div class="demo-actions"><button id="insert">在 B 前插入 X</button><button id="demo-reset">还原 A、B、C</button></div><p id="demo-note" class="tip" aria-live="polite"></p></section><section class="lesson"><h2>建议学习路线</h2><div class="steps" id="steps"></div><p class="tip">线性表学扎实，再学习操作受限的栈、队列，接着树、图，最后把查找、排序和复杂度贯通起来。</p><div class="quiz"><h3 style="margin-top:0">检查一下你是否串起来了</h3><p>“顺序表和链表”在这张图里是什么关系？</p><button data-answer="wrong">两种不同的逻辑结构</button><button data-answer="right">线性表的两种存储实现</button><button data-answer="wrong">两种排序算法</button><div id="feedback" aria-live="polite"></div></div><details style="margin-top:16px"><summary style="cursor:pointer;color:var(--accent)">老师的合集目录 · 68 节（点击展开）</summary><details style="margin:8px 0 8px 12px"><summary style="cursor:pointer">线性表 · 5 节</summary><ol style="font-size:12px;padding-left:22px"><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1CMQEBnE6o">顺序表(上) - 定义, 创建, 查找</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1n9oSBUEcZ">顺序表(下) - 插入, 删除</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1tJTG6YEgs">单链表(上) - 定义, 创建(头插法, 尾插法)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1T2NZ6REg3">单链表(下) - 查找, 插入, 删除</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV15aaf6MEPN">双向链表&amp;循环链表</a></li></ol></details><details style="margin:8px 0 8px 12px"><summary style="cursor:pointer">树 · 11 节</summary><ol style="font-size:12px;padding-left:22px"><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1xeV5zYEuZ">树 - 定义, 术语, 性质</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1eQ3RzxEoS">二叉树&amp;完全二叉树 - 定义, 性质</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1dWbQzfEDd">二叉树的存储 - 顺序存储, 链式存储</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV12T411J72x">二叉树的遍历 - 前序，中序，后序，层序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1RtezzTEz9">二叉树的构造 - 由遍历序列构造二叉树</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1xyWEzBE5b">线索二叉树(上) - 概念, 先序/中序/后序线索化</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1jRsXz9EcF">线索二叉树(下) - 找前驱/后继, 遍历</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1YvUVB2Ezy">树的存储 - 双亲表示法, 孩子表示法, 孩子兄弟表示法</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1xBqZBAE12">树、森林与二叉树的转换，树和森林的遍历</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1qu411F7Zs">哈夫曼树和哈夫曼编码</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1zZRSYUEWV">并查集 - 基本操作，路径压缩，按秩合并</a></li></ol></details><details style="margin:8px 0 8px 12px"><summary style="cursor:pointer">图 · 16 节</summary><ol style="font-size:12px;padding-left:22px"><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV12QASzrErF">图 - 定义, 术语, 性质</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV18C4y1A7JC">图的存储-邻接矩阵</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1Ng4y1Z7yN">图的存储-邻接表/邻接表画法</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1Qp4y1f7Wg">图的深度优先遍历/深度优先搜索</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1RD8V66E2E">图的遍历-深度优先搜索(DFS)代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1VK411t74h">图的广度优先遍历/广度优先搜索</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1wG411z79G">最小生成树-Prim(普里姆)算法和Kruskal(克鲁斯卡尔)算法</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1Fz2RBMEbe">最小生成树-Prim(普里姆)算法代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1xi6kBFERV">最小生成树-Kruskal(克鲁斯卡尔)算法代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1uT4y1p7Jy">最短路径-Dijkstra(迪杰斯特拉)算法</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1pJrPBnESq">最短路径-Dijkstra(迪杰斯特拉)算法代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV19k4y1Q7Gj">最短路径-Floyd(弗洛伊德)算法</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1FuXCBDEFy">最短路径-Floyd(弗洛伊德)算法代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1XV411X7T7">拓扑排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1eU7y6FEQr">拓扑排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1dy421a7S1">AOE网和关键路径</a></li></ol></details><details style="margin:8px 0 8px 12px"><summary style="cursor:pointer">查找 · 14 节</summary><ol style="font-size:12px;padding-left:22px"><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1gt421a7Cq">顺序查找和平均查找长度ASL</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV19m411S723">折半查找(二分查找)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV14K421478y">折半查找的判定树和平均查找长度(ASL)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1uK421x7JJ">二叉搜索树(二叉排序树)(二叉查找树)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1GDWMz9EXU">二叉搜索树代码 - 查找, 插入, 构建(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1UhHwzxE6Q">二叉搜索树代码 - 删除(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1bs1jBgEYi">判断是否为二叉搜索树(二叉排序树)代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1tZ421q72h">平衡二叉树(AVL树)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1Xm421x7Lg">红黑树 - 定义, 插入, 构建</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV16m421u7Tb">红黑树 - 删除</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1tJ4m1w7yR">B树(B-树) - 来由, 定义, 插入, 构建</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1JU411d7iY">B树(B-树) - 删除</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1bs421u7pY">B+树</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV13NwveLE1D">散列表(哈希表) - 散列函数, 冲突处理, 平均查找长度(ASL)</a></li></ol></details><details style="margin:8px 0 8px 12px"><summary style="cursor:pointer">排序 · 19 节</summary><ol style="font-size:12px;padding-left:22px"><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1tf421Q7eh">直接插入排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1Q14ZerE4J">直接插入排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1E1421b7Eb">折半插入排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1ctaGzvE5F">折半插入排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1bm42137UZ">希尔排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1Vm1oYTEvP">希尔排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV181421876R">冒泡排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1Ued9YyEW4">冒泡排序及其改进代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV14zkoBGE3q">双向冒泡排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1y4421Z7hK">快速排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1amsse5EtZ">快速排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1kjsuenE8v">简单选择排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV11MhpzNEZi">简单选择排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1HYtseiEQ8">堆与堆排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1KrzrYeEQd">堆排序代码(C/C++实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1em1oYTEFf">归并排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1aGKFe4Eja">归并排序代码(C/C++递归实现)</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1KrzrYeEDw">基数排序</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1afTrzzEri">基数排序代码(C/C++链式实现)</a></li></ol></details><details style="margin:8px 0 8px 12px"><summary style="cursor:pointer">常见题型 · 3 节</summary><ol style="font-size:12px;padding-left:22px"><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1vG411Q7oz">秒杀系列-前后缀表达式计算</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1aV4y1771G">秒杀系列-中缀表达式转前后缀表达式</a></li><li><a target="_blank" rel="noopener noreferrer" href="https://www.bilibili.com/video/BV1iU4y1B7D7">二叉树-前序中序推后序, 后序中序推前序</a></li></ol></details></details><p class="source">范围：常见大学／自学入门数据结构课程。已通过 B 站公开接口核对视频标题及合集目录；概念解释为通用知识整理，未取得视频正文或字幕。当前视频：蓝不过海呀《线性表－顺序表（上）－定义、创建、查找》。<a href="https://www.bilibili.com/video/BV1CMQEBnE6o" target="_blank" rel="noopener noreferrer">回到你提供的视频</a></p></section></div>
+<footer>实现：单文件 HTML + CSS + 原生 JavaScript + SVG。无需安装库，无外部资源请求，下载后可离线打开。按 Tab 可以操作搜索、节点和按钮。</footer>
+</main>
+<script id="map-data" type="application/json">
+[
+  {
+    "id": "root",
+    "p": null,
+    "title": "数据结构",
+    "tag": "学习总览",
+    "summary": "研究数据元素之间的关系、这些关系的存储方式，以及在其上进行的操作。入门时可以用“逻辑结构 + 存储结构 + 操作”来组织知识。",
+    "example": "关系：A 在 B 前，B 在 C 前\n实现：连续放，或用链接连接\n操作：读取、插入、删除、查找",
+    "pitfall": "导图是一张知识地图。逻辑分类、存储方式和算法专题是不同维度，不能混作一棵严格的分类树。",
+    "related": [
+      "logic",
+      "storage",
+      "ops",
+      "cost"
+    ]
+  },
+  {
+    "id": "logic",
+    "p": "root",
+    "title": "逻辑结构",
+    "rel": "关系层",
+    "tag": "问：元素之间是什么关系？",
+    "summary": "忽略地址和代码，描述数据元素之间的组织关系。经典入门分类是集合、线性结构、树形结构、图状结构。",
+    "example": "排队：前后相继\n目录：父子层次\n道路：网状连接",
+    "pitfall": "逻辑上的“相邻”不等于内存地址连续。链表中的前后两个结点可能相隔很远。",
+    "related": [
+      "storage",
+      "linear",
+      "tree",
+      "graph"
+    ]
+  },
+  {
+    "id": "set",
+    "p": "logic",
+    "title": "集合结构",
+    "rel": "逻辑分类",
+    "tag": "只有同属一个集合的关系",
+    "summary": "元素之间没有特定前后次序或层次关系。这里的“集合”是逻辑结构概念。",
+    "example": "参加活动的人员集合\n只关心谁属于这个集合",
+    "pitfall": "C++ 的 std::set 是具体容器，通常使用平衡搜索树实现；它与逻辑结构分类里的“集合”不是同一个层级的概念。",
+    "related": [
+      "hash",
+      "tree"
+    ]
+  },
+  {
+    "id": "linearkind",
+    "p": "logic",
+    "title": "线性结构",
+    "rel": "逻辑分类",
+    "tag": "元素按一条序列组织",
+    "summary": "线性结构描述元素之间一对一的先后关系。线性表是典型抽象模型；栈、队列是限制插入与删除位置的线性结构，串可视为特殊的字符序列。",
+    "example": "逻辑分类：集合、线性、树形、图状\n线性结构下：线性表、栈、队列等\n存储实现再分：顺序存储、链式存储",
+    "pitfall": "“线性结构”是较宽的类别；“线性表”是典型模型；“顺序表”和“链表”进一步说的是如何实现线性表。",
+    "related": [
+      "linear",
+      "stack",
+      "queue",
+      "string",
+      "storage"
+    ]
+  },
+  {
+    "id": "linear",
+    "p": "linearkind",
+    "title": "线性表",
+    "rel": "典型模型",
+    "tag": "有序序列：一对一关系",
+    "summary": "由同一种数据类型的元素组成的有限有序序列。除首尾外，每个元素各有一个直接前驱和直接后继。空表也合法。",
+    "example": "(A, B, C)\nA → B → C\n“有序”指位置顺序，不要求按数值大小排序。",
+    "pitfall": "线性表是抽象的逻辑结构。顺序表、链表是它的典型存储实现。",
+    "related": [
+      "seq",
+      "linked",
+      "stack",
+      "queue"
+    ]
+  },
+  {
+    "id": "seq",
+    "p": "linear",
+    "title": "顺序表",
+    "rel": "典型实现",
+    "tag": "用连续存储实现线性表",
+    "summary": "把元素放在一段连续的存储空间中。知道下标即可计算元素地址，适合随机访问。通常用数组作为底层存储。",
+    "example": "逻辑：A → B → C\n内存：[ A ][ B ][ C ]\n按下标访问：O(1)\n中间插删：O(n)，要移动元素",
+    "pitfall": "数组是存储工具；顺序表还包含长度管理、插入、删除等操作。动态顺序表扩容可能要复制或移动元素。尾部追加摊还 O(1) 是几何扩容等策略下的结论。",
+    "related": [
+      "linked",
+      "contiguous",
+      "array",
+      "cost"
+    ]
+  },
+  {
+    "id": "linked",
+    "p": "linear",
+    "title": "链表",
+    "rel": "典型实现",
+    "tag": "用链接关系实现线性表",
+    "summary": "元素放在结点里，每个结点保存数据以及指向其他结点的链接。结点不要求连续存储。访问第 i 个元素通常要沿链接遍历。",
+    "example": "[A | next] → [B | next] → [C | null]\n按位置访问：O(n)\n已知合适结点后改链接：O(1)",
+    "pitfall": "“链表插删 O(1)”需要条件：例如单链表已知前驱，或双链表已知目标结点。若先按位置查找，整个操作通常仍是 O(n)。",
+    "related": [
+      "single",
+      "double",
+      "circular",
+      "linkstore",
+      "seq"
+    ]
+  },
+  {
+    "id": "single",
+    "p": "linked",
+    "title": "单链表",
+    "rel": "变体",
+    "tag": "一个方向的链接",
+    "summary": "每个结点保存 next 链接，可沿一个方向访问后继。常用头指针，有的实现再设置不存有效数据的头结点。",
+    "example": "head → A → B → C → null",
+    "pitfall": "头指针与头结点不同。删除 B 通常需要找到 B 的前驱 A，才能修改 A.next。",
+    "related": [
+      "double",
+      "circular"
+    ]
+  },
+  {
+    "id": "double",
+    "p": "linked",
+    "title": "双向链表",
+    "rel": "变体",
+    "tag": "前驱、后继都可找",
+    "summary": "结点同时保存 prev 和 next，能在两个方向遍历。相比单链表，需要更多链接空间和维护工作。",
+    "example": "null ← A ⇄ B ⇄ C → null",
+    "pitfall": "插入或删除时要正确维护两个方向的链接，以及首尾边界。",
+    "related": [
+      "single",
+      "circular"
+    ]
+  },
+  {
+    "id": "circular",
+    "p": "linked",
+    "title": "循环链表",
+    "rel": "变体",
+    "tag": "首尾链接成环",
+    "summary": "尾结点链接回首结点或头结点。可以是单向循环，也可以是双向循环。",
+    "example": "A → B → C\n↑       ↓\n└───────┘",
+    "pitfall": "单向／双向与是否循环是两个维度，能组合；遍历不能再只用 next == null 作为结束条件。",
+    "related": [
+      "single",
+      "double"
+    ]
+  },
+  {
+    "id": "stack",
+    "p": "linearkind",
+    "title": "栈",
+    "rel": "受限线性结构",
+    "tag": "后进先出 LIFO",
+    "summary": "只在栈顶一端插入和删除的抽象数据类型。可以用顺序存储或链式存储实现。",
+    "example": "压栈 A、B、C → 出栈 C、B、A\n应用：函数调用、括号匹配、DFS",
+    "pitfall": "栈不是“顺序表之后的第三种存储方式”。它限制操作规则，可以有顺序栈或链栈。",
+    "related": [
+      "linear",
+      "seq",
+      "linked",
+      "dfs"
+    ]
+  },
+  {
+    "id": "queue",
+    "p": "linearkind",
+    "title": "队列",
+    "rel": "受限线性结构",
+    "tag": "先进先出 FIFO",
+    "summary": "队尾入队，队头出队。典型实现是循环数组或链表。",
+    "example": "入队 A、B、C → 出队 A、B、C\n应用：任务排队、BFS",
+    "pitfall": "循环队列是常见的数组实现方法，不等于循环链表。优先队列按优先级出队，不遵守普通队列的 FIFO。",
+    "related": [
+      "linear",
+      "seq",
+      "linked",
+      "bfs",
+      "heap"
+    ]
+  },
+  {
+    "id": "tree",
+    "p": "logic",
+    "title": "树",
+    "rel": "树形结构",
+    "tag": "层次关系：一对多",
+    "summary": "树由根及其子树组成，常用来表示层级。非空有根树中，除根外每个结点只有一个父结点，可以有多个子结点。",
+    "example": "根\n├─ 子结点 A\n│  └─ 孙结点 C\n└─ 子结点 B",
+    "pitfall": "一般树与二叉树不同；树可以用链接存，也可以用数组等方式存，不能把“树”当作存储方式。",
+    "related": [
+      "binary",
+      "bst",
+      "heap",
+      "btrees",
+      "linkstore",
+      "threaded",
+      "huffman",
+      "unionfind"
+    ]
+  },
+  {
+    "id": "binary",
+    "p": "tree",
+    "title": "二叉树",
+    "rel": "常见树类型",
+    "tag": "每个结点最多两个孩子",
+    "summary": "每个结点最多有左、右两个孩子；左右子树有区别。重点学习遍历、递归、完全二叉树等概念。",
+    "example": "前序：根 → 左 → 右\n中序：左 → 根 → 右\n后序：左 → 右 → 根\n层序：一层一层，常用队列",
+    "pitfall": "二叉树不自动按大小有序。二叉搜索树才带有比较规则。",
+    "related": [
+      "bst",
+      "heap",
+      "traverse",
+      "queue"
+    ]
+  },
+  {
+    "id": "bst",
+    "p": "tree",
+    "title": "二叉搜索树 / 平衡树",
+    "rel": "查找专题",
+    "tag": "在树上维护大小关系",
+    "summary": "二叉搜索树通过键的大小安排左右子树，支持查找、插入和删除。AVL 树、红黑树等通过平衡约束控制树高。",
+    "example": "左子树键 < 根键 < 右子树键\n具体的重复键处理规则由实现决定。\n平衡时查找 O(log n)",
+    "pitfall": "普通二叉搜索树可能退化成链状，查找最坏 O(n)。不要把所有二叉树都当作 O(log n) 查找。",
+    "related": [
+      "binary",
+      "searchalgo",
+      "cost"
+    ]
+  },
+  {
+    "id": "heap",
+    "p": "tree",
+    "title": "堆 / 优先队列",
+    "rel": "典型应用",
+    "tag": "快速取得最高优先级元素",
+    "summary": "常见二叉堆是满足堆序性质的完全二叉树，通常用数组实现。优先队列是一种抽象数据类型，堆是它的常见实现。",
+    "example": "小根堆：父结点值 ≤ 孩子值\n堆顶取最小：O(1)\n二叉堆插入／删除堆顶：O(log n)",
+    "pitfall": "堆不是二叉搜索树：兄弟之间、不同子树之间通常没有全局大小顺序。这里的“堆”也不同于动态内存分配区域的“堆”。",
+    "related": [
+      "binary",
+      "array",
+      "queue",
+      "sort"
+    ]
+  },
+  {
+    "id": "btrees",
+    "p": "tree",
+    "title": "B 树 / B+ 树",
+    "rel": "进阶专题",
+    "tag": "多路平衡查找树",
+    "summary": "允许一个结点容纳多个键及多个孩子，降低树高，常见于数据库与文件索引。可以在掌握基本树之后再学。",
+    "example": "多个键分隔多个子树\nB+ 树常把数据项或记录指针集中在叶子层，并连接叶子。",
+    "pitfall": "B 树不是“二叉树”的英文缩写；也不必把数据库索引细节当作线性表阶段的必修内容。",
+    "related": [
+      "tree",
+      "indexstore",
+      "bst"
+    ]
+  },
+  {
+    "id": "threaded",
+    "p": "tree",
+    "title": "线索二叉树",
+    "rel": "课程专题",
+    "tag": "利用空链接记录遍历邻居",
+    "summary": "在普通二叉树中，部分左右链接为空。线索化利用这些空链接记录某种遍历顺序中的前驱或后继，并通过标志区分孩子链接和线索。",
+    "example": "中序线索：结点 → 中序前驱／后继\n目的是便于按指定遍历顺序寻找相邻结点。",
+    "pitfall": "先序、中序、后序线索依赖不同遍历顺序；线索不等于树中的父子边。",
+    "related": [
+      "binary",
+      "traverse"
+    ]
+  },
+  {
+    "id": "forest",
+    "p": "tree",
+    "title": "树、森林与树的存储",
+    "rel": "课程专题",
+    "tag": "一般树如何表示与转换",
+    "summary": "森林是若干互不相交的树的集合。一般树可用双亲、孩子或孩子兄弟表示法存储；孩子兄弟表示法可以将树与森林对应到二叉树。",
+    "example": "双亲表示：为结点存父结点下标\n孩子兄弟：firstChild + nextSibling",
+    "pitfall": "一般树转成二叉树后，二叉树中的左右链接表达的是孩子与兄弟，不是原树的左右孩子。",
+    "related": [
+      "tree",
+      "binary",
+      "linkstore",
+      "array"
+    ]
+  },
+  {
+    "id": "huffman",
+    "p": "tree",
+    "title": "哈夫曼树与编码",
+    "rel": "课程专题",
+    "tag": "权值决定更合适的路径长度",
+    "summary": "哈夫曼树是在给定叶子权值下构造带权路径长度最小的二叉树。利用根到叶子的路径可生成前缀编码。",
+    "example": "反复选取权值最小的两棵树合并\n高频符号通常获得较短编码。",
+    "pitfall": "哈夫曼树不一定是完全二叉树，编码也不一定唯一。",
+    "related": [
+      "binary",
+      "heap",
+      "string"
+    ]
+  },
+  {
+    "id": "unionfind",
+    "p": "tree",
+    "title": "并查集",
+    "rel": "课程专题",
+    "tag": "维护集合的合并与归属",
+    "summary": "用一片父指针森林表示互不相交的集合，支持查找代表元素和合并集合。常用路径压缩与按秩或大小合并。",
+    "example": "find(x)：x 属于哪组？\nunion(x,y)：把两组并起来\n应用：Kruskal 中判断是否形成环",
+    "pitfall": "并查集擅长集合合并，不直接支持任意拆分，也不保存图中的所有路径。",
+    "related": [
+      "forest",
+      "graphalgo",
+      "advanced"
+    ]
+  },
+  {
+    "id": "graph",
+    "p": "logic",
+    "title": "图",
+    "rel": "图状结构",
+    "tag": "网状关系：多对多",
+    "summary": "由顶点和边构成。常见分类包括有向／无向、带权／无权。适合道路、依赖关系、社交网络等问题。",
+    "example": "A ─ B\n│ ╲ │\nC ─ D",
+    "pitfall": "图是逻辑关系；邻接矩阵、邻接表是存储实现。图也不一定连通。",
+    "related": [
+      "matrix",
+      "adjlist",
+      "dfs",
+      "bfs",
+      "graphalgo"
+    ]
+  },
+  {
+    "id": "matrix",
+    "p": "graph",
+    "title": "邻接矩阵",
+    "rel": "典型实现",
+    "tag": "用二维数组记录边",
+    "summary": "用 V×V 的矩阵记录顶点之间是否有边或边的权重。空间通常是 O(V²)，判断指定边通常 O(1)。",
+    "example": "M[i][j] 表示 i 到 j 的边\n无向图的矩阵通常关于主对角线对称。",
+    "pitfall": "带权图中要约定“没有边”的表示方式；权重 0 可能是合法值。",
+    "related": [
+      "adjlist",
+      "array",
+      "cost"
+    ]
+  },
+  {
+    "id": "adjlist",
+    "p": "graph",
+    "title": "邻接表",
+    "rel": "典型实现",
+    "tag": "为每个顶点列出邻居",
+    "summary": "每个顶点保存与它相邻的顶点或出边，空间通常是 O(V+E)。常用链表或动态数组存储每个邻接序列。",
+    "example": "A: B, C\nB: A, D\nC: A, D",
+    "pitfall": "邻接表中的“表”不要求必须用指针链表实现；C++ 中经常用 vector<vector<int>>。",
+    "related": [
+      "matrix",
+      "linked",
+      "seq",
+      "bfs"
+    ]
+  },
+  {
+    "id": "storage",
+    "p": "root",
+    "title": "存储结构",
+    "rel": "实现层",
+    "tag": "问：关系在内存中怎么表示？",
+    "summary": "又称物理结构，是数据及其逻辑关系在计算机中的表示。常见教材讲顺序、链式、索引、散列四类存储方法。",
+    "example": "同一个线性表\n→ 连续存：顺序表\n→ 用链接存：链表",
+    "pitfall": "逻辑结构与存储结构不是一一对应关系。一种逻辑结构可以有多种实现，一种存储方法也能服务多种逻辑结构。",
+    "related": [
+      "logic",
+      "contiguous",
+      "linkstore",
+      "indexstore",
+      "hash"
+    ]
+  },
+  {
+    "id": "contiguous",
+    "p": "storage",
+    "title": "顺序存储",
+    "rel": "存储方法",
+    "tag": "用位置体现关系",
+    "summary": "把逻辑相邻的元素放在相邻存储位置，用地址或下标关系表示组织关系。典型例子是顺序表。",
+    "example": "[A][B][C]\n等长元素地址 = 起始地址 + 下标 × 元素大小",
+    "pitfall": "顺序存储不意味着元素按数值大小排序。“顺序”说的是存储布局。",
+    "related": [
+      "seq",
+      "array",
+      "heap"
+    ]
+  },
+  {
+    "id": "linkstore",
+    "p": "storage",
+    "title": "链式存储",
+    "rel": "存储方法",
+    "tag": "用链接体现关系",
+    "summary": "通过指针或其他链接信息显式记录关系，元素所在位置不要求连续。常用于链表与树等结构。",
+    "example": "结点 = 数据 + 链接\n链接可以表示 next、prev、left、right 等。",
+    "pitfall": "链式存储是实现方法，链表是线性表的具体实现。链接也可以用数组下标模拟。",
+    "related": [
+      "linked",
+      "tree",
+      "adjlist"
+    ]
+  },
+  {
+    "id": "indexstore",
+    "p": "storage",
+    "title": "索引存储",
+    "rel": "存储方法",
+    "tag": "建立额外的查找目录",
+    "summary": "除了数据本身，还建立关键字到存储位置等信息的索引，以帮助定位数据。索引本身可以用多种结构实现。",
+    "example": "关键字 → 记录位置\n类似书末“词条 → 页码”的索引",
+    "pitfall": "索引是一种辅助定位方法，不等于数组下标，也不只等于某一种树。",
+    "related": [
+      "searchalgo",
+      "btrees",
+      "hash"
+    ]
+  },
+  {
+    "id": "hash",
+    "p": "storage",
+    "title": "散列存储 / 哈希表",
+    "rel": "存储方法及典型结构",
+    "tag": "用哈希函数定位候选位置",
+    "summary": "把键经过哈希函数映射到表中的位置或桶。不同键可能映射到同一位置，需要处理冲突，如链地址法或开放寻址法。",
+    "example": "键 → hash(key) → 桶\n例如：学号 → 学生记录\n合适条件下查找期望 O(1)",
+    "pitfall": "散列不是绝对 O(1)：效率与哈希函数、负载因子、冲突处理有关，最坏情况可能 O(n)。字典／映射是抽象接口，哈希表是常见实现之一。",
+    "related": [
+      "searchalgo",
+      "linked",
+      "bst",
+      "cost"
+    ]
+  },
+  {
+    "id": "ops",
+    "p": "root",
+    "title": "抽象数据类型与基本操作",
+    "rel": "接口层",
+    "tag": "问：允许做什么？",
+    "summary": "抽象数据类型（ADT）规定数据对象、关系和操作，而不绑定具体内存实现。线性表、栈、队列、优先队列都可以按 ADT 理解。",
+    "example": "线性表：插入、删除、访问、查找\n栈：push、pop、top\n队列：enqueue、dequeue、front",
+    "pitfall": "同一套接口可以有不同实现；选实现时需要看常用操作的效率与空间需求。",
+    "related": [
+      "insertdelete",
+      "traverse",
+      "searchalgo",
+      "stack",
+      "queue"
+    ]
+  },
+  {
+    "id": "insertdelete",
+    "p": "ops",
+    "title": "访问 / 插入 / 删除",
+    "rel": "基本操作",
+    "tag": "操作相同，代价可能不同",
+    "summary": "访问读取指定位置或键对应的元素；插入添加元素；删除移除元素。需要保持结构原有的规则。",
+    "example": "顺序表中间插入：移动后续元素\n单链表已知前驱后插入：修改链接",
+    "pitfall": "比较操作复杂度时要说明条件：是否已知位置、是否还要查找、是否可能扩容。",
+    "related": [
+      "seq",
+      "linked",
+      "cost"
+    ]
+  },
+  {
+    "id": "traverse",
+    "p": "ops",
+    "title": "遍历",
+    "rel": "基本操作",
+    "tag": "按规则访问所有元素",
+    "summary": "以规定顺序访问结构中的元素。线性表沿序列访问；树有前／中／后／层序；图常用 DFS、BFS。",
+    "example": "链表：沿 next 走\n树：递归访问子树\n图：记录已访问顶点避免重复",
+    "pitfall": "图不连通时，从一个顶点出发不能保证访问所有顶点。",
+    "related": [
+      "binary",
+      "dfs",
+      "bfs"
+    ]
+  },
+  {
+    "id": "algos",
+    "p": "root",
+    "title": "配套算法与效率",
+    "rel": "算法层",
+    "tag": "问：怎么处理、成本多少？",
+    "summary": "查找、排序、遍历等是算法主题，复杂度用于比较随输入规模增长的成本。它们与数据结构紧密配合。",
+    "example": "结构决定可利用的关系\n算法利用这些关系完成任务",
+    "pitfall": "排序不是与链表、树、图同一层级的“数据结构”。不要把课程章节标题都当作结构分类。",
+    "related": [
+      "searchalgo",
+      "sort",
+      "cost",
+      "graphalgo"
+    ]
+  },
+  {
+    "id": "searchalgo",
+    "p": "algos",
+    "title": "查找",
+    "rel": "算法主题",
+    "tag": "定位目标元素或记录",
+    "summary": "常见方法有顺序查找、二分查找、树查找、散列查找。结构和数据条件决定适合哪种方法。",
+    "example": "顺序查找：O(n)\n有序随机访问序列的二分查找：O(log n)\n平衡搜索树：O(log n)",
+    "pitfall": "二分查找要求按比较规则有序；在链表上中点定位成本高，不能直接沿用数组的 O(log n) 总时间结论。",
+    "related": [
+      "seq",
+      "bst",
+      "hash",
+      "cost"
+    ]
+  },
+  {
+    "id": "sort",
+    "p": "algos",
+    "title": "排序",
+    "rel": "算法主题",
+    "tag": "按关键字重排元素",
+    "summary": "常见入门内容包括直接／折半插入、希尔、冒泡、选择、快速、堆、归并、基数排序。比较它们的时间、空间与稳定性。",
+    "example": "[3, 1, 2] → [1, 2, 3]\n比较：时间、空间、稳定性",
+    "pitfall": "线性表的“有序”是位置先后；排序后的“有序”是关键字大小顺序，两个词的含义不同。",
+    "related": [
+      "linear",
+      "heap",
+      "cost"
+    ]
+  },
+  {
+    "id": "dfs",
+    "p": "algos",
+    "title": "深度优先 DFS",
+    "rel": "遍历策略",
+    "tag": "先沿一条路走深",
+    "summary": "优先探索当前路径的后续结点，再回退探索其他分支。可以通过递归或显式栈实现。",
+    "example": "走深 → 回退 → 换分支\n应用：连通性、搜索、回溯",
+    "pitfall": "图中通常需要访问标记；递归深度很大时要考虑调用栈空间。",
+    "related": [
+      "stack",
+      "graph",
+      "tree",
+      "traverse"
+    ]
+  },
+  {
+    "id": "bfs",
+    "p": "algos",
+    "title": "广度优先 BFS",
+    "rel": "遍历策略",
+    "tag": "先访问近的一层",
+    "summary": "通常用队列，从起点一层层扩展。无权图或所有边权相同的图中可求最少边数的路径。",
+    "example": "起点 → 距离 1 的顶点 → 距离 2 的顶点",
+    "pitfall": "普通 BFS 不适用于一般带权图的最短路；结点通常在入队时标记以避免重复入队。",
+    "related": [
+      "queue",
+      "graph",
+      "traverse",
+      "graphalgo"
+    ]
+  },
+  {
+    "id": "graphalgo",
+    "p": "algos",
+    "title": "图算法专题",
+    "rel": "后续学习",
+    "tag": "在网状关系上解决问题",
+    "summary": "这个合集覆盖最短路径（Dijkstra、Floyd）、最小生成树（Prim、Kruskal）、拓扑排序、AOE 网与关键路径等。它们处理不同的图问题。",
+    "example": "最短路：路程最短\n最小生成树：连接所有顶点的总成本最低\n拓扑排序：依赖先后\n关键路径：决定项目总工期的活动路径",
+    "pitfall": "每个算法有适用条件，例如 Dijkstra 通常要求边权非负，拓扑排序要求有向无环图。",
+    "related": [
+      "graph",
+      "heap",
+      "bfs"
+    ]
+  },
+  {
+    "id": "cost",
+    "p": "algos",
+    "title": "时间 / 空间复杂度",
+    "rel": "评价方法",
+    "tag": "随数据规模增长的成本",
+    "summary": "用 n 等变量表示输入规模，描述运行步骤和额外空间的增长数量级。O(1)、O(log n)、O(n)、O(n log n)、O(n²) 是常见级别。",
+    "example": "O(1)：数组按下标访问\nO(n)：遍历 n 个元素\n图算法常用 V（顶点数）、E（边数）",
+    "pitfall": "大 O 不等于秒数。还要区分最坏、平均、期望、摊还，以及空间是否计入输入本身。",
+    "related": [
+      "seq",
+      "linked",
+      "hash",
+      "searchalgo"
+    ]
+  },
+  {
+    "id": "more",
+    "p": "root",
+    "title": "其他常见与进阶专题",
+    "rel": "课程补充",
+    "tag": "按课程目标逐步扩展",
+    "summary": "除了主干，一些课程还讨论串、数组和特殊矩阵；竞赛或更深入的课程会增加并查集、字典树、线段树等。",
+    "example": "现在重点：线性表 → 栈队列 → 树 → 图\n进阶结构：等基础扎实后再补",
+    "pitfall": "数据结构没有一个封闭的“全部名单”。不同课程取舍不同，这张图覆盖常见主干，并区分后续专题。",
+    "related": [
+      "string",
+      "array",
+      "advanced"
+    ]
+  },
+  {
+    "id": "string",
+    "p": "more",
+    "title": "串（字符串）",
+    "rel": "常见专题",
+    "tag": "由字符组成的有限序列",
+    "summary": "可以看作元素为字符的特殊线性序列。常见操作是拼接、截取、比较、模式匹配，匹配算法包括朴素方法、KMP 等。",
+    "example": "文本：\"abcabc\"\n模式：\"cab\"\n目标：找出模式出现的位置",
+    "pitfall": "字符串长度、字符编码、结尾标记等具体规则由语言或实现决定。",
+    "related": [
+      "linear",
+      "seq",
+      "searchalgo"
+    ]
+  },
+  {
+    "id": "array",
+    "p": "more",
+    "title": "数组 / 特殊矩阵",
+    "rel": "常见专题",
+    "tag": "下标访问与存储布局",
+    "summary": "数组是按下标访问的存储工具，也是一类有固定维度和下标关系的结构。多维数组通常映射到线性存储空间；稀疏矩阵可压缩存储。",
+    "example": "a[i]；a[i][j]\n数组 → 顺序表、二叉堆、邻接矩阵\n稀疏矩阵 → 只存非零元素及其位置",
+    "pitfall": "数组不完全等于顺序表；一维数组可以承载多种不同的逻辑结构。",
+    "related": [
+      "seq",
+      "heap",
+      "matrix",
+      "contiguous"
+    ]
+  },
+  {
+    "id": "advanced",
+    "p": "more",
+    "title": "并查集 / Trie / 线段树等",
+    "rel": "进阶专题",
+    "tag": "为特定问题设计的结构",
+    "summary": "并查集维护集合合并与连通关系；Trie 利用前缀组织键；线段树和树状数组支持区间或前缀查询及更新。是否需要学习取决于课程与应用。",
+    "example": "并查集：这两个元素是否属于同一组？\nTrie：哪些词有这个前缀？\n线段树：某段区间的和／最大值？",
+    "pitfall": "不用一开始就记住所有实现。先问它解决什么操作需求，再理解结构如何帮助完成操作。",
+    "related": [
+      "tree",
+      "string",
+      "cost"
+    ]
+  }
+]
+</script>
+<script>
+'use strict';
+const nodes=JSON.parse(document.getElementById('map-data').textContent), byId=new Map(nodes.map(n=>[n.id,n]));
+nodes.forEach(n=>n.children=nodes.filter(x=>x.p===n.id).map(x=>x.id));
+const initial=['root','logic','linearkind'];let open=new Set(initial),selected='linear',query='',scope='all',scale=1,tx=0,ty=0,layout=new Map(),bounds={w:1,h:1};
+const svg=document.getElementById('map'),scene=document.getElementById('scene'),view=document.getElementById('viewport'),detail=document.getElementById('detail'),search=document.getElementById('search'),results=document.getElementById('results');
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs={},text){const e=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);if(text!==undefined)e.textContent=text;return e;}
+function visible(id='root'){return [id,...(open.has(id)?byId.get(id).children.flatMap(x=>visible(x)):[])];}
+function ancestry(id){let a=[];for(let n=byId.get(id);n;n=byId.get(n.p))a.unshift(n);return a;}
+function render(){scene.replaceChildren();layout=new Map();let row=0,maxDepth=0;function place(id,depth){maxDepth=Math.max(maxDepth,depth);const n=byId.get(id);let c=open.has(id)?n.children:[];let y;if(c.length){const ys=c.map(x=>place(x,depth+1));y=(ys[0]+ys[ys.length-1])/2;}else{y=40+row++*72;}layout.set(id,{x:35+depth*290,y});return y;}place(scope==='linear'?'linear':'root',0);bounds={w:35+maxDepth*290+222,h:Math.max(100,row*72+25)};
+for(const [id,pos]of layout){const n=byId.get(id);if(!n.p||!layout.has(n.p))continue;const parent=layout.get(n.p),x1=parent.x+204,x2=pos.x,y1=parent.y,y2=pos.y;scene.append(el('path',{d:`M${x1} ${y1} C${x1+20} ${y1},${x2-20} ${y2},${x2} ${y2}`,class:'edge'}));scene.append(el('text',{x:x1+6,y:y2-8,class:'edge-label'},n.rel));}
+for(const [id,pos]of layout){const n=byId.get(id);const g=el('g',{transform:`translate(${pos.x},${pos.y-25})`,class:`node ${id==='root'?'root':''} ${selected===id?'selected':''} ${query&&n.title.toLowerCase().includes(query.toLowerCase())?'match':''}`,tabindex:0,role:'button','aria-label':`${n.title}，查看解释`,'data-id':id});g.append(el('rect',{width:204,height:50,rx:7}));const title=el('text',{x:12,y:22},n.title.length>17?n.title.slice(0,17)+'…':n.title);g.append(title);g.append(el('text',{x:12,y:39,class:'small'},n.tag.length>19?n.tag.slice(0,19)+'…':n.tag));g.append(el('title',{},n.title+'：'+n.tag));g.addEventListener('click',()=>select(id));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(id);}if(e.key==='ArrowRight'&&n.children.length){e.preventDefault();open.add(id);render();}if(e.key==='ArrowLeft'&&n.children.length){e.preventDefault();open.delete(id);render();}});
+if(n.children.length){const toggle=el('g',{transform:'translate(182,14)',role:'button',tabindex:0,'aria-label':`${open.has(id)?'收起':'展开'}${n.title}`,'aria-expanded':String(open.has(id))});toggle.append(el('rect',{width:17,height:20,rx:3}));toggle.append(el('text',{x:8.5,y:15,'text-anchor':'middle'},open.has(id)?'−':'+'));function flip(e){e.stopPropagation();open.has(id)?open.delete(id):open.add(id);render();}toggle.addEventListener('click',flip);toggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip(e);}});g.append(toggle);}scene.append(g);}transform();}
+function transform(){scene.setAttribute('transform',`translate(${tx},${ty}) scale(${scale})`);document.getElementById('zoom').textContent=Math.round(scale*100)+'%';}
+function fit(){const w=view.clientWidth,h=view.clientHeight;scale=Math.max(.18,Math.min(1,(w-35)/bounds.w,(h-35)/bounds.h));tx=(w-bounds.w*scale)/2;ty=(h-bounds.h*scale)/2;transform();}
+function select(id){selected=id;render();renderDetail();}
+function jump(id){scope='all';ancestry(id).slice(0,-1).forEach(n=>open.add(n.id));select(id);fit();results.hidden=true;}
+function renderDetail(){const n=byId.get(selected);detail.replaceChildren();function add(tag,text,cls){const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;detail.append(e);return e;}add('div',n.tag,'label');add('h2',n.title);add('p',n.summary);add('h3','一个具体例子');add('div',n.example,'example');add('h3','容易混淆');add('p',n.pitfall,'note');add('h3','把这些名词接起来');const links=add('div','','related');(n.related||[]).forEach(id=>{const b=document.createElement('button');b.textContent=byId.get(id).title;b.onclick=()=>jump(id);links.append(b);});add('div','当前路径：'+ancestry(selected).map(x=>x.title).join(' › '),'path');}
+function zoomBy(factor,x=view.clientWidth/2,y=view.clientHeight/2){const next=Math.min(2,Math.max(.18,scale*factor));tx=x-(x-tx)*next/scale;ty=y-(y-ty)*next/scale;scale=next;transform();}
+document.getElementById('plus').onclick=()=>zoomBy(1.2);document.getElementById('minus').onclick=()=>zoomBy(1/1.2);document.getElementById('fit').onclick=fit;
+function clearSearch(){query='';search.value='';results.hidden=true;}
+document.getElementById('all').onclick=()=>{clearSearch();scope='all';open=new Set(nodes.filter(n=>n.children.length).map(n=>n.id));render();fit();};document.getElementById('collapse').onclick=()=>{clearSearch();scope='all';open=new Set(['root']);select('root');fit();};document.getElementById('reset').onclick=()=>{clearSearch();scope='all';open=new Set(initial);select('linear');fit();};document.getElementById('linear').onclick=()=>{clearSearch();scope='linear';open=new Set(['root','logic','linear','linked']);select('linear');fit();};
+search.addEventListener('input',()=>{query=search.value.trim();results.replaceChildren();if(!query){results.hidden=true;render();return;}const hits=nodes.filter(n=>(n.title+' '+n.tag+' '+n.summary).toLowerCase().includes(query.toLowerCase()));results.hidden=false;if(!hits.length){results.textContent='没有匹配的名词，试试“链表”或“逻辑”。';return;}hits.slice(0,12).forEach(n=>{const b=document.createElement('button');b.textContent=n.title;b.onclick=()=>jump(n.id);results.append(b);});});search.addEventListener('keydown',e=>{if(e.key==='Escape')results.hidden=true;if(e.key==='Enter'){const first=results.querySelector('button');if(first)first.click();}});document.addEventListener('click',e=>{if(!e.target.closest('.search'))results.hidden=true;});
+let drag=null;view.addEventListener('pointerdown',e=>{if(e.target.closest('.node'))return;drag={x:e.clientX,y:e.clientY,tx,ty};view.classList.add('dragging');view.setPointerCapture(e.pointerId);});view.addEventListener('pointermove',e=>{if(!drag)return;tx=drag.tx+e.clientX-drag.x;ty=drag.ty+e.clientY-drag.y;transform();});function stop(){drag=null;view.classList.remove('dragging');}view.addEventListener('pointerup',stop);view.addEventListener('pointercancel',stop);view.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();const r=view.getBoundingClientRect();zoomBy(e.deltaY<0?1.1:1/1.1,e.clientX-r.left,e.clientY-r.top);},{passive:false});new ResizeObserver(()=>fit()).observe(view);
+let mode='seq',inserted=false;function demo(){const box=document.getElementById('memory');box.replaceChildren();box.className='memory'+(mode==='link'?' linked':'');const values=inserted?['A','X','B','C']:['A','B','C'];const addresses={A:1200,B:4600,C:2300,X:7800};values.forEach((v,i)=>{const c=document.createElement('div');c.className='cell'+(inserted&&(mode==='seq'?i>0:v==='A'||v==='X')?' changed':'');c.textContent=v;const a=document.createElement('small');a.textContent=mode==='seq'?'地址 '+(1000+i*4):'地址 '+addresses[v];c.append(a);if(mode==='link'){const next=document.createElement('small');next.textContent='next: '+(i===values.length-1?'null':addresses[values[i+1]]);c.append(next);}box.append(c);if(mode==='link'&&i<values.length-1){const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='→';box.append(arrow);}});document.getElementById('seq-mode').setAttribute('aria-pressed',String(mode==='seq'));document.getElementById('link-mode').setAttribute('aria-pressed',String(mode==='link'));document.getElementById('insert').disabled=inserted;document.getElementById('insert').textContent=inserted?'已插入 X':'在 B 前插入 X';document.getElementById('demo-note').textContent=mode==='seq'?(inserted?'为了给 X 腾出位置，B、C 要后移。一般中间插入需 O(n)；这里假设容量足够。':'按下标定位可以 O(1)。示意中每个元素占 4 字节，相邻地址连续。'):(inserted?'已知前驱 A 时，让 X.next 指向 B，再让 A.next 指向 X；修改链接 O(1)，不移动 B、C。按位置寻找 A 仍可能需要 O(n)。':'结点的地址可以分散，但 next 保留 A → B → C 的逻辑顺序。实际结点还占用链接等空间。');}
+document.getElementById('seq-mode').onclick=()=>{mode='seq';demo();};document.getElementById('link-mode').onclick=()=>{mode='link';demo();};document.getElementById('insert').onclick=()=>{inserted=true;demo();};document.getElementById('demo-reset').onclick=()=>{inserted=false;demo();};
+['logic','linear','stack','queue','tree','graph','searchalgo','sort','cost'].forEach((id,i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+byId.get(id).title;b.onclick=()=>jump(id);document.getElementById('steps').append(b);});document.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>{document.getElementById('feedback').textContent=b.dataset.answer==='right'?'对！线性表描述 A、B、C 的先后关系；顺序表与链表描述这套关系如何存储。':'再想一下：先后关系仍是 A → B → C，变化的是内存中的存法。正确答案是“线性表的两种存储实现”。';});render();renderDetail();demo();fit();
+</script>
+</body></html>
